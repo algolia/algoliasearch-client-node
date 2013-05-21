@@ -11,8 +11,15 @@ To setup your project, follow these steps:
  2. Install `underscore` dependency and optionnaly `agentkeepalive` to enable keep alive on HTTPS sessions (Avoid SSL renegociation for each API call).
  3. Initialize the client with your ApplicationID, API-Key and list of hostnames (you can find all of them on your Algolia account)
  
+Initialization without keep-alive:
 ```javascript
-// httpsAgent is optional but reduce a lot latency (avoid SSL renegociation for each API call)
+var Algolia = require('./algoliasearch-node');
+var client = new Algolia('ApplicationID', 'API-Key', 
+                         ['api-u1-1.algolia.io', 'api-u1-2.algolia.io', 'api-u1-3.algolia.io']);
+```
+
+Initialization with keep-alive enabled:
+```javascript
 var HttpsAgent = require('agentkeepalive').HttpsAgent;
 var Algolia = require('./algoliasearch-node');
 
