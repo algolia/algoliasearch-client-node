@@ -8,7 +8,7 @@ Setup
 To setup your project, follow these steps:
 
  1. Download `algoliasearch-node.js` script
- 2. Install dependencies `underscore` and optionnaly `agentkeepalive` to enable keep alive on HTTPS sessions (Avoid to redo the SSL negotiation at each request).
+ 2. Install `underscore` dependency and optionnaly `agentkeepalive` to enable keep alive on HTTPS sessions (Avoid SSL renegociation for each API call).
  3. Initialize the client with your ApplicationID, API-Key and list of hostnames (you can find all of them on your Algolia account)
  
 ```javascript
@@ -23,7 +23,8 @@ var keepaliveAgent = new HttpsAgent({
 });
 
 var client = new Algolia('ApplicationID', 'API-Key', 
-                         ['http://api-u1-1.algolia.io', 'http://api-u1-2.algolia.io', 'api-u1-3.algolia.io'], keepaliveAgent);
+                         ['api-u1-1.algolia.io', 'api-u1-2.algolia.io', 'api-u1-3.algolia.io'],
+                         keepaliveAgent);
 ```
 
 General Principle
