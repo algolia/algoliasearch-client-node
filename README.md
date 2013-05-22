@@ -30,7 +30,7 @@ var keepaliveAgent = new HttpsAgent({
 });
 
 var client = new Algolia('ApplicationID', 'API-Key', 
-                         ['api-u1-1.algolia.io', 'api-u1-2.algolia.io', 'api-u1-3.algolia.io'],
+                         ['user-1.algolia.io', 'user-2.algolia.io', 'user-3.algolia.io'],
                          keepaliveAgent);
 ```
 
