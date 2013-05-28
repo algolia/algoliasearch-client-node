@@ -7,9 +7,13 @@ Setup
 -------------
 To setup your project, follow these steps:
 
- 1. Download `algoliasearch-node.js` script
- 2. Install `underscore` dependency and optionnaly `agentkeepalive` to enable keep alive on HTTPS sessions (Avoid SSL renegociation for each API call).
- 3. Initialize the client with your ApplicationID, API-Key and list of hostnames (you can find all of them on your Algolia account)
+ 1. install algolia-search by running 
+
+```
+npm install algolia-search
+```
+
+ 2. Initialize the client with your ApplicationID, API-Key and list of hostnames (you can find all of them on your Algolia account)
  
 Initialization without keep-alive:
 ```javascript
@@ -39,7 +43,7 @@ General Principle
 
 All API calls will return the result in a callback that takes two arguments:
 
- 1. **sucess**: a boolean that is set to false when an error was found.
+ 1. **success**: a boolean that is set to false when an error was found.
  2. **content**: the object containing the answer (if an error was found, you can retrieve the error message in `content.message`)
 
 Search 
