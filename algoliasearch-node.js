@@ -560,22 +560,6 @@ AlgoliaSearch.prototype.Index.prototype = {
         emptyConstructor: function() {}
 };
 
-AlgoliaUtils_stringifyParamValues = function(params) {
-    if (!params || _.isEmpty(params))
-        return null;
-    var values = _(params).map(function(value, key) {
-        if (_.isObject(value) || _.isArray(value))
-            return JSON.stringify(value);
-        else
-            return value;
-    });
-    var keys = _(params).keys();
-    var ret = {};
-    for (var i = 0; i < keys.length; i++)
-        ret[keys[i]] = values[i];
-    return ret;
-};
-
 AlgoliaUtils_jsonRequest = function(opts, appID, apiKey, httpsAgent) {
     var body = null;
     if (!_.isUndefined(opts.body)) {
@@ -604,9 +588,6 @@ AlgoliaUtils_jsonRequest = function(opts, appID, apiKey, httpsAgent) {
     }
     if (httpsAgent !== null) {
         reqOpts.agent = httpsAgent;
-    }
-    if (opts.params) {
-        reqOpts.params = AlgoliaUtils_stringifyParamValues(opts.params);
     }
     var req = https.request(reqOpts, function(res) {
         res.setEncoding('utf8');
