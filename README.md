@@ -2,6 +2,7 @@ Algolia Search API Client for Node.js
 ==================
 
 This Node.js client let you easily use the Algolia Search API from your backend.
+The service is currently in Beta, you can request an invite on our [website](http://www.algolia.com/pricing/).
 
 Setup
 -------------
@@ -36,6 +37,40 @@ var keepaliveAgent = new HttpsAgent({
 var client = new Algolia('ApplicationID', 'API-Key', 
                          ['user-1.algolia.io', 'user-2.algolia.io', 'user-3.algolia.io'],
                          keepaliveAgent);
+```
+
+Quick Start
+-------------
+This quick start is a 30 seconds tutorial where you can discover how to index and search objects.
+
+Without any prior-configuration, you can index the 1000 world's biggest cities in the ```cities``` index with the following code:
+```javascript
+var index = client.initIndex('cities');
+var fileJSON = require('./1000-cities.json');
+index.addObjects(fileJSON['objects']);
+```
+The [1000-cities.json](https://github.com/algolia/algoliasearch-client-node/blob/master/1000-cities.json) file contains city names extracted from [Geonames](http://www.geonames.org) and formated in our [batch format](http://docs.algoliav1.apiary.io/#post-%2F1%2Findexes%2F%7BindexName%7D%2Fbatch). The ```body```attribute contains the user-object that can be any valid JSON.
+
+You can then start to search for a city name (even with typos):
+```javascript
+index.search('san fran', function(success, content) {
+  console.log(content.hits);
+});
+index.search('loz anqel', function(success, content) {
+  console.log(content.hits);
+});
+```
+
+Settings can be customized to tune the index behavior. For example you can add a custom sort by population to the already good out-of-the-box relevance to raise bigger cities above smaller ones. To update the settings, use the following code:
+```javascript
+index.setSettings({'customRanking': ['desc(population)', 'asc(name)']});
+```
+
+And then search for all cities that start with an "s":
+```javascript
+index.search('s', function(success, content) {
+  console.log(content.hits);
+});
 ```
 
 General Principle

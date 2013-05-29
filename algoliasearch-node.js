@@ -225,7 +225,7 @@ AlgoliaSearch.prototype = {
         }
         if (body !== null) {
             reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
-                                                          'Content-Length': body.length });
+                                                          'Content-Length': new Buffer(body, 'utf8').length });
         }
         if (this.httpsAgent !== null) {
             reqOpts.agent = this.httpsAgent;
@@ -247,7 +247,7 @@ AlgoliaSearch.prototype = {
         });
 
         if (body !== null) {
-            req.write(body);
+            req.write(body, encoding = 'utf8');
         }
         req.end();
     },
@@ -312,7 +312,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                                 body: objects[i] };
                 postObj.requests.push(request);
             }
-            this.as._jsonRequest({ action: 'POST',
+            this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch", 
                                    body: postObj,
                                    callback: function(success, res, body) {
