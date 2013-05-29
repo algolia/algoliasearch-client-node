@@ -196,9 +196,60 @@ AlgoliaSearch.prototype = {
                 }
             };
             opts.hostname = self.hosts[idx];
-            AlgoliaUtils_jsonRequest(opts, self.applicationID, self.apiKey, self.httpsAgent)
+            self._jsonRequestByHost(opts)
         };
         impl();
+    },
+
+    _jsonRequestByHost: function(opts) {
+        var body = null;
+        if (!_.isUndefined(opts.body)) {
+            body = JSON.stringify(opts.body);
+        }
+        var reqOpts = {
+          method: opts.method,
+          hostname: opts.hostname,
+          port: 443,
+          path: opts.url,
+          headers: {
+            'X-Algolia-Application-Id': this.applicationID,
+            'X-Algolia-API-Key': this.apiKey,
+            'Connection':'keep-alive',
+            'Content-Length': 0
+          }
+        };
+        if (opts.hostname.indexOf(':') !== -1) {
+            var n = opts.hostname.split(":")
+            reqOpts.hostname = n[0];
+            reqOpts.port = n[1];
+        }
+        if (body !== null) {
+            reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
+                                                          'Content-Length': body.length });
+        }
+        if (this.httpsAgent !== null) {
+            reqOpts.agent = this.httpsAgent;
+        }
+        var req = https.request(reqOpts, function(res) {
+            res.setEncoding('utf8');
+      
+            var success = (res.statusCode === 200 || res.statusCode === 201);
+            res.on('data', function(d) {
+                if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
+                    d = JSON.parse(d);
+
+                }
+                opts.callback(success, res, d);
+            });
+        });
+        req.on('error', function(e) {
+            opts.callback(false, null, { 'message': e} );
+        });
+
+        if (body !== null) {
+            req.write(body);
+        }
+        req.end();
     },
 
     /// internal attributes
@@ -558,57 +609,6 @@ AlgoliaSearch.prototype.Index.prototype = {
         as: null,
         indexName: null,
         emptyConstructor: function() {}
-};
-
-AlgoliaUtils_jsonRequest = function(opts, appID, apiKey, httpsAgent) {
-    var body = null;
-    if (!_.isUndefined(opts.body)) {
-        body = JSON.stringify(opts.body);
-    }
-    var reqOpts = {
-      method: opts.method,
-      hostname: opts.hostname,
-      port: 443,
-      path: opts.url,
-      headers: {
-        'X-Algolia-Application-Id': appID,
-        'X-Algolia-API-Key': apiKey,
-        'Connection':'keep-alive',
-        'Content-Length': 0
-      }
-    };
-    if (opts.hostname.indexOf(':') !== -1) {
-        var n = opts.hostname.split(":")
-        reqOpts.hostname = n[0];
-        reqOpts.port = n[1];
-    }
-    if (body !== null) {
-        reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
-                                                      'Content-Length': body.length });
-    }
-    if (httpsAgent !== null) {
-        reqOpts.agent = httpsAgent;
-    }
-    var req = https.request(reqOpts, function(res) {
-        res.setEncoding('utf8');
-  
-        var success = (res.statusCode === 200 || res.statusCode === 201);
-        res.on('data', function(d) {
-            if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
-                d = JSON.parse(d);
-
-            }
-            opts.callback(success, res, d);
-        });
-    });
-    req.on('error', function(e) {
-        opts.callback(false, null, { 'message': e} );
-    });
-
-    if (body !== null) {
-        req.write(body);
-    }
-    req.end();
 };
 
 module.exports = AlgoliaSearch;
