@@ -31,7 +31,7 @@ var Algolia = require('./algoliasearch-node');
 var keepaliveAgent = new HttpsAgent({
     maxSockets: 1,
     maxKeepAliveRequests: 0, // no limit on max requests per keepalive socket
-    maxKeepAliveTime: 1000 // keepalive for 1 second
+    maxKeepAliveTime: 30000 // keepalive for 30 seconds
 });
 
 var client = new Algolia('ApplicationID', 'API-Key', 
