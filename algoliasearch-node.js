@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013 Algolia
  * http://www.algolia.com/
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,6 +22,7 @@
  */
 var _ = require('underscore');
 var https = require('https');
+var Buffers = require('buffers');
 
 /**
  * Algolia Search library initialization
@@ -56,7 +57,7 @@ AlgoliaSearch.prototype = {
     deleteIndex: function(indexName, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'DELETE',
-                            url: '/1/indexes/' + indexName, 
+                            url: '/1/indexes/' + indexName,
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -73,7 +74,7 @@ AlgoliaSearch.prototype = {
     listIndexes: function(callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
-                            url: '/1/indexes/', 
+                            url: '/1/indexes/',
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -98,7 +99,7 @@ AlgoliaSearch.prototype = {
     listUserKeys: function(callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
-                            url: '/1/keys', 
+                            url: '/1/keys',
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -114,7 +115,7 @@ AlgoliaSearch.prototype = {
     getUserKeyACL: function(key, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
-                            url: '/1/keys/' + key, 
+                            url: '/1/keys/' + key,
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -130,7 +131,7 @@ AlgoliaSearch.prototype = {
     deleteUserKey: function(key, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'DELETE',
-                            url: '/1/keys/' + key, 
+                            url: '/1/keys/' + key,
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -139,7 +140,7 @@ AlgoliaSearch.prototype = {
     /*
      * Add an existing user key
      *
-     * @param acls the list of ACL for this key. Defined by an array of strings that 
+     * @param acls the list of ACL for this key. Defined by an array of strings that
      * can contains the following values:
      *   - search: allow to search (https and http)
      *   - addObject: allows to add a new object in the index (https only)
@@ -157,7 +158,7 @@ AlgoliaSearch.prototype = {
         var aclsObject = new Object();
         aclsObject.acl = acls;
         this._jsonRequest({ method: 'POST',
-                            url: '/1/keys', 
+                            url: '/1/keys',
                             body: aclsObject,
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
@@ -232,14 +233,22 @@ AlgoliaSearch.prototype = {
         }
         var req = https.request(reqOpts, function(res) {
             res.setEncoding('utf8');
-      
-            var success = (res.statusCode === 200 || res.statusCode === 201);
-            res.on('data', function(d) {
+
+            var success = (res.statusCode === 200 || res.statusCode === 201),
+                chunks = new Buffers();
+
+            res.on('data', function(chunk) {
+                chunks.push(chunk);
+            });
+
+            res.on('end', function() {
+                var body = chunks.toBuffer();
+
                 if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
-                    d = JSON.parse(d);
+                    body = JSON.parse(body);
 
                 }
-                opts.callback(success, res, d);
+                opts.callback(success, res, body);
             });
         });
         req.on('error', function(e) {
@@ -267,19 +276,19 @@ AlgoliaSearch.prototype = {
 AlgoliaSearch.prototype.Index.prototype = {
         /*
          * Add an object in this index
-         * 
+         *
          * @param content contains the javascript object to add inside the index
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
-         * @param objectID (optional) an objectID you want to attribute to this object 
+         * @param objectID (optional) an objectID you want to attribute to this object
          * (if the attribute already exist the old object will be overwrite)
          */
         addObject: function(content, callback, objectID) {
             var indexObj = this;
             if (_.isUndefined(objectID)) {
                 this.as._jsonRequest({ method: 'POST',
-                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName), 
+                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName),
                                        body: content,
                                        callback: function(success, res, body) {
                     if (!_.isUndefined(callback))
@@ -287,7 +296,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }});
             } else {
                 this.as._jsonRequest({ method: 'PUT',
-                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID, 
+                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID,
                                        body: content,
                                        callback: function(success, res, body) {
                     if (!_.isUndefined(callback))
@@ -298,8 +307,8 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
         /*
          * Add several objects
-         * 
-         * @param objects contains an array of objects to add 
+         *
+         * @param objects contains an array of objects to add
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
          *  content: the server answer that updateAt and taskID
@@ -308,12 +317,12 @@ AlgoliaSearch.prototype.Index.prototype = {
             var indexObj = this;
             var postObj = {requests:[]};
             for (var i = 0; i < objects.length; ++i) {
-                var request = { action: 'addObject', 
+                var request = { action: 'addObject',
                                 body: objects[i] };
                 postObj.requests.push(request);
             }
             this.as._jsonRequest({ method: 'POST',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch", 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch",
                                    body: postObj,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -322,7 +331,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
         /*
          * Get an object from this index
-         * 
+         *
          * @param objectID the unique identifier of the object to retrieve
          * @param callback (optional) the result callback with two arguments
          *  success: boolean set to true if the request was successfull
@@ -342,7 +351,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }
             }
             this.as._jsonRequest({ method: 'GET',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID + params, 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID + params,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(classToDerive)) {
                     var obj = new classToDerive();
@@ -356,8 +365,8 @@ AlgoliaSearch.prototype.Index.prototype = {
 
         /*
          * Update partially an object (only update attributes passed in argument)
-         * 
-         * @param partialObject contains the javascript attributes to override, the 
+         *
+         * @param partialObject contains the javascript attributes to override, the
          *  object must contains an objectID attribute
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
@@ -366,7 +375,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         partialUpdateObject: function(partialObject, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'POST',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(partialObject.objectID) + "/partial", 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(partialObject.objectID) + "/partial",
                                    body: partialObject,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -376,7 +385,7 @@ AlgoliaSearch.prototype.Index.prototype = {
 
         /*
          * Override the content of object
-         * 
+         *
          * @param object contains the javascript object to save, the object must contains an objectID attribute
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
@@ -385,7 +394,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         saveObject: function(object, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'PUT',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(object.objectID), 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(object.objectID),
                                    body: object,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -394,7 +403,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
         /*
          * Override the content of several objects
-         * 
+         *
          * @param objects contains an array of objects to update (each object must contains a objectID attribute)
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
@@ -404,13 +413,13 @@ AlgoliaSearch.prototype.Index.prototype = {
             var indexObj = this;
             var postObj = {requests:[]};
             for (var i = 0; i < objects.length; ++i) {
-                var request = { action: 'updateObject', 
-                                objectID: encodeURIComponent(objects[i].objectID), 
+                var request = { action: 'updateObject',
+                                objectID: encodeURIComponent(objects[i].objectID),
                                 body: objects[i] };
                 postObj.requests.push(request);
             }
             this.as._jsonRequest({ method: 'POST',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch", 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch",
                                    body: postObj,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -418,8 +427,8 @@ AlgoliaSearch.prototype.Index.prototype = {
             }});
         },
         /*
-         * Delete an object from the index 
-         * 
+         * Delete an object from the index
+         *
          * @param objectID the unique identifier of object to delete
          * @param callback (optional) the result callback with two arguments:
          *  success: boolean set to true if the request was successfull
@@ -428,7 +437,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         deleteObject: function(objectID, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'DELETE',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID, 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -443,27 +452,27 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that contains the list of results
          * @param classToDerive (optional) if set, hits will be an instance of this class
          * @param args (optional) if set, contains an object with query parameters:
-         *  - attributes: a string that contains attribute names to retrieve separated by a comma. 
+         *  - attributes: a string that contains attribute names to retrieve separated by a comma.
          *    By default all attributes are retrieved.
-         *  - attributesToHighlight: a string that contains attribute names to highlight separated by a comma. 
+         *  - attributesToHighlight: a string that contains attribute names to highlight separated by a comma.
          *    By default all attributes are highlighted.
          *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
          *     Defaults to 3.
          *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
          *     Defaults to 7.
-         *  - getRankingInfo: if set, the result hits will contain ranking information in 
+         *  - getRankingInfo: if set, the result hits will contain ranking information in
          *     _rankingInfo attribute
          *  - page: (pagination parameter) page to retrieve (zero base). Defaults to 0.
          *  - hitsPerPage: (pagination parameter) number of hits per page. Defaults to 10.
-         *  - aroundLatLng let you search for entries around a given latitude/longitude (two float separated 
-         *    by a ',' for example aroundLatLng=47.316669,5.016670). 
+         *  - aroundLatLng let you search for entries around a given latitude/longitude (two float separated
+         *    by a ',' for example aroundLatLng=47.316669,5.016670).
          *    You can specify the maximum distance in meters with aroundRadius parameter (in meters).
          *    At indexing, geoloc of an object should be set with _geoloc attribute containing lat and lng attributes (for example {"_geoloc":{"lat":48.853409, "lng":2.348800}})
-         *  - insideBoundingBox let you search entries inside a given area defined by the two extreme points of 
+         *  - insideBoundingBox let you search entries inside a given area defined by the two extreme points of
          *    a rectangle (defined by 4 floats: p1Lat,p1Lng,p2Lat, p2Lng.
          *    For example insideBoundingBox=47.3165,4.9665,47.3424,5.0201).
          *    At indexing, geoloc of an object should be set with _geoloc attribute containing lat and lng attributes (for example {"_geoloc":{"lat":48.853409, "lng":2.348800}})
-         *  - tags let you filter the query by a set of tags (contains a list of tags separated by ','). 
+         *  - tags let you filter the query by a set of tags (contains a list of tags separated by ',').
          *    At indexing, tags should be added in _tags attribute of objects (for example {"_tags":["tag1","tag2"]} )
          */
         search: function(query, callback, args, classToDerive) {
@@ -489,7 +498,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
 
         /*
-         * Wait the publication of a task on the server. 
+         * Wait the publication of a task on the server.
          * All server task are asynchronous and you can check with this method that the task is published.
          *
          * @param taskID the id of the task returned by server
@@ -514,7 +523,7 @@ AlgoliaSearch.prototype.Index.prototype = {
 
         /*
          * Get settings of this index
-         * 
+         *
          * @param callback (optional) the result callback with two arguments
          *  success: boolean set to true if the request was successfull
          *  content: the settings object or the error message if a failure occured
@@ -522,7 +531,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         getSettings: function(callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/settings", 
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/settings",
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -531,30 +540,30 @@ AlgoliaSearch.prototype.Index.prototype = {
 
         /*
          * Set settings for this index
-         * 
+         *
          * @param settigns the settings object that can contains :
          *  - minWordSizeForApprox1 (integer) the minimum number of characters to accept one typo (default = 3)
          *  - minWordSizeForApprox2: (integer) the minimum number of characters to accept two typos (default = 7)
          *  - hitsPerPage: (integer) the number of hits per page (default = 10)
          *  - attributesToRetrieve: (array of strings) default list of attributes to retrieve for objects
          *  - attributesToHighlight: (array of strings) default list of attributes to highlight
-         *  - attributesToIndex: (array of strings) the list of fields you want to index. 
-         *    By default all textual attributes of your objects are indexed, but you should update it to get optimal 
+         *  - attributesToIndex: (array of strings) the list of fields you want to index.
+         *    By default all textual attributes of your objects are indexed, but you should update it to get optimal
          *    results. This parameter has two important uses:
-         *       - Limit the attributes to index. 
-         *         For example if you store a binary image in base64, you want to store it in the index but you 
+         *       - Limit the attributes to index.
+         *         For example if you store a binary image in base64, you want to store it in the index but you
          *         don't want to use the base64 string for search.
-         *       - Control part of the ranking (see the ranking parameter for full explanation). 
-         *         Matches in attributes at the beginning of the list will be considered more important than matches 
+         *       - Control part of the ranking (see the ranking parameter for full explanation).
+         *         Matches in attributes at the beginning of the list will be considered more important than matches
          *         in attributes further down the list.
-         *  - ranking: (array of strings) controls the way results are sorted. 
-         *     We have three available criteria: 
-         *       - typo (sort according to number of typos), 
-         *       - position (sort according to the matching attribute), 
+         *  - ranking: (array of strings) controls the way results are sorted.
+         *     We have three available criteria:
+         *       - typo (sort according to number of typos),
+         *       - position (sort according to the matching attribute),
          *       - custom which is user defined
          *     (the standard order is ["typo", "position", "custom"])
-         *  - customRanking: (array of strings) lets you specify part of the ranking. 
-         *    The syntax of this condition is an array of strings containing attributes prefixed 
+         *  - customRanking: (array of strings) lets you specify part of the ranking.
+         *    The syntax of this condition is an array of strings containing attributes prefixed
          *    by asc (ascending order) or desc (descending order) operator.
          * @param callback (optional) the result callback with two arguments
          *  success: boolean set to true if the request was successfull
@@ -564,7 +573,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             var indexObj = this;
             this.as._jsonRequest({ method: 'PUT',
                                    url: '/1/indexes/' + indexObj.indexName + "/settings",
-                                   body: settings, 
+                                   body: settings,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -572,7 +581,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
 
 
-        /// 
+        ///
         /// Internal methods only after this line
         ///
         /*
@@ -581,13 +590,13 @@ AlgoliaSearch.prototype.Index.prototype = {
          * Attributes are:
          *  - attributes: an array of object attribute names to retrieve
          *     (if not set all attributes are retrieve)
-         *  - attributesToHighlight: an array of object attribute names to highlight 
+         *  - attributesToHighlight: an array of object attribute names to highlight
          *     (if not set all textual attributes are highlighted)
          *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
          *     Defaults to 3.
          *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
          *     Defaults to 7.
-         *  - getRankingInfo: if set, the result hits will contain ranking information in 
+         *  - getRankingInfo: if set, the result hits will contain ranking information in
          *     _rankingInfo attribute
          *  - page: (pagination parameter) page to retrieve (zero base). Defaults to 0.
          *  - hitsPerPage: (pagination parameter) number of hits per page. Defaults to 10.
