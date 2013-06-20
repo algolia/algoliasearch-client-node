@@ -232,8 +232,6 @@ AlgoliaSearch.prototype = {
             reqOpts.agent = this.httpsAgent;
         }
         var req = https.request(reqOpts, function(res) {
-            res.setEncoding('utf8');
-
             var success = (res.statusCode === 200 || res.statusCode === 201),
                 chunks = new Buffers();
 
@@ -242,7 +240,7 @@ AlgoliaSearch.prototype = {
             });
 
             res.on('end', function() {
-                var body = chunks.toBuffer();
+                var body = chunks.toString('utf8');
 
                 if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
                     body = JSON.parse(body);
