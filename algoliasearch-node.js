@@ -546,7 +546,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  - minWordSizeForApprox2: (integer) the minimum number of characters to accept two typos (default = 7)
          *  - hitsPerPage: (integer) the number of hits per page (default = 10)
          *  - attributesToRetrieve: (array of strings) default list of attributes to retrieve for objects
-         *  - attributesToHighlight: (array of strings) default list of attributes to highlight
+         *  - attributesToHighlight: (array of strings) default list of attributes to highlight.
+         *  -  attributesToSnippet:  (array of strings) default list of attributes to snippet alongside the number of words to return (syntax is 'attributeName:nbWords'). Attributes are separated by a comma (Example: "attributesToSnippet=name:10,content:10").<br/>By default no snippet is computed.
          *  - attributesToIndex: (array of strings) the list of fields you want to index.
          *    By default all textual attributes of your objects are indexed, but you should update it to get optimal
          *    results. This parameter has two important uses:
@@ -562,6 +563,10 @@ AlgoliaSearch.prototype.Index.prototype = {
          *       - position (sort according to the matching attribute),
          *       - custom which is user defined
          *     (the standard order is ["typo", "position", "custom"])
+         *  - queryType: select how the query words are interpreted:
+         *      - prefixAll: all query words are interpreted as prefixes (default behavior).
+         *      - prefixLast: only the last word is interpreted as a prefix. This option is recommended if you have a lot of content to speedup the processing.
+         *      - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
          *  - customRanking: (array of strings) lets you specify part of the ranking.
          *    The syntax of this condition is an array of strings containing attributes prefixed
          *    by asc (ascending order) or desc (descending order) operator.
