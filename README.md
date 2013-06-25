@@ -20,7 +20,7 @@ Initialization without keep-alive:
 ```javascript
 var Algolia = require('./algoliasearch-node');
 var client = new Algolia('ApplicationID', 'API-Key', 
-                         ['user-1.algolia.io', 'user-2.algolia.io', 'user-3.algolia.io']);
+      ['YourHostname-1.algolia.io', 'YourHostname-2.algolia.io', 'YourHostname-3.algolia.io']);
 ```
 
 Initialization with keep-alive enabled:
@@ -35,8 +35,8 @@ var keepaliveAgent = new HttpsAgent({
 });
 
 var client = new Algolia('ApplicationID', 'API-Key', 
-              ['YourHostname-1.algolia.io', 'YourHostname-2.algolia.io', 'YourHostname-3.algolia.io'],
-              keepaliveAgent);
+      ['YourHostname-1.algolia.io', 'YourHostname-2.algolia.io', 'YourHostname-3.algolia.io'],
+      keepaliveAgent);
 ```
 Note: if you are using keep-alive in a command-line tool, your program will exit after the keep-alive timeout is expired. You should use a connection without keep-alive in a command-line tool.
 
