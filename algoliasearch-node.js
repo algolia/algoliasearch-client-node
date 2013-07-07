@@ -51,16 +51,16 @@ AlgoliaSearch.prototype = {
      *
      * @param indexName the name of index to delete
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
+     *  error: boolean set to true if the request had an error
      *  content: the server answer that contains the task ID
      */
     deleteIndex: function(indexName, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'DELETE',
                             url: '/1/indexes/' + encodeURIComponent(indexName),
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
 
@@ -68,16 +68,16 @@ AlgoliaSearch.prototype = {
      * List all existing indexes
      *
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with index list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with index list or error description if error is true.
      */
     listIndexes: function(callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
                             url: '/1/indexes/',
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
@@ -93,48 +93,48 @@ AlgoliaSearch.prototype = {
      * List all existing user keys with their associated ACLs
      *
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with user keys list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
      */
     listUserKeys: function(callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
                             url: '/1/keys',
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
      * Get ACL of a user key
      *
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with user keys list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
      */
     getUserKeyACL: function(key, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'GET',
                             url: '/1/keys/' + key,
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
      * Delete an existing user key
      *
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with user keys list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
      */
     deleteUserKey: function(key, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'DELETE',
                             url: '/1/keys/' + key,
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
@@ -149,8 +149,8 @@ AlgoliaSearch.prototype = {
      *   - settings : allows to get index settings (https only)
      *   - editSettings : allows to change index settings (https only)
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with user keys list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
      */
     addUserKey: function(acls, callback) {
         var indexObj = this;
@@ -159,9 +159,9 @@ AlgoliaSearch.prototype = {
         this._jsonRequest({ method: 'POST',
                             url: '/1/keys',
                             body: aclsObject,
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
@@ -177,8 +177,8 @@ AlgoliaSearch.prototype = {
      *   - editSettings : allows to change index settings (https only)
      * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
      * @param callback the result callback with two arguments
-     *  success: boolean set to true if the request was successfull
-     *  content: the server answer with user keys list or error description if success is false.
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
      */
     addUserKeyWithValidity: function(acls, validity, callback) {
         var indexObj = this;
@@ -188,9 +188,9 @@ AlgoliaSearch.prototype = {
         this._jsonRequest({ method: 'POST',
                             url: '/1/keys',
                             body: aclsObject,
-                            callback: function(success, res, body) {
+                            callback: function(error, res, body) {
             if (!_.isUndefined(callback))
-                callback(success, body);
+                callback(error, body);
         }});
     },
     /*
@@ -214,14 +214,14 @@ AlgoliaSearch.prototype = {
             if (!_.isUndefined(position))
                 idx = position;
             if (!Array.isArray(self.hosts) || self.hosts.length <= idx) {
-                callback(false, null, { message: "Cannot contact server"});
+                callback(true, null, { message: "Cannot contact server"});
                 return;
             }
-            opts.callback = function(success, res, body) {
-                if (!success && (idx + 1) < self.hosts.length) {
+            opts.callback = function(error, res, body) {
+                if (error && (idx + 1) < self.hosts.length) {
                     impl(idx + 1);
                 } else {
-                    callback(success, res, body);
+                    callback(error, res, body);
                 }
             };
             opts.hostname = self.hosts[idx];
@@ -274,11 +274,11 @@ AlgoliaSearch.prototype = {
                     body = JSON.parse(body);
 
                 }
-                opts.callback(success, res, body);
+                opts.callback(!success, res, body);
             });
         });
         req.on('error', function(e) {
-            opts.callback(false, null, { 'message': e} );
+            opts.callback(true, null, { 'message': e} );
         });
 
         if (body !== null) {
@@ -305,7 +305,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param content contains the javascript object to add inside the index
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
          * @param objectID (optional) an objectID you want to attribute to this object
          * (if the attribute already exist the old object will be overwrite)
@@ -316,17 +316,17 @@ AlgoliaSearch.prototype.Index.prototype = {
                 this.as._jsonRequest({ method: 'POST',
                                        url: '/1/indexes/' + encodeURIComponent(indexObj.indexName),
                                        body: content,
-                                       callback: function(success, res, body) {
+                                       callback: function(error, res, body) {
                     if (!_.isUndefined(callback))
-                        callback(success, body);
+                        callback(error, body);
                 }});
             } else {
                 this.as._jsonRequest({ method: 'PUT',
                                        url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID),
                                        body: content,
-                                       callback: function(success, res, body) {
+                                       callback: function(error, res, body) {
                     if (!_.isUndefined(callback))
-                        callback(success, body);
+                        callback(error, body);
                 }});
             }
 
@@ -336,7 +336,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param objects contains an array of objects to add
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that updateAt and taskID
          */
         addObjects: function(objects, callback) {
@@ -350,9 +350,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch",
                                    body: postObj,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -360,7 +360,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param objectID the unique identifier of the object to retrieve
          * @param callback (optional) the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the object to retrieve or the error message if a failure occured
          * @param classToDerive (optional) if set, hits will be an instance of this class
          * @param attributes (optional) if set, contains the array of attribute names to retrieve
@@ -378,14 +378,14 @@ AlgoliaSearch.prototype.Index.prototype = {
             }
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID) + params,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(classToDerive)) {
                     var obj = new classToDerive();
                     _.extend(obj, body);
                     body = obj;
                 }
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
 
@@ -395,7 +395,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          * @param partialObject contains the javascript attributes to override, the
          *  object must contains an objectID attribute
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
          */
         partialUpdateObject: function(partialObject, callback) {
@@ -403,9 +403,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(partialObject.objectID) + "/partial",
                                    body: partialObject,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
 
@@ -414,7 +414,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param object contains the javascript object to save, the object must contains an objectID attribute
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that updateAt and taskID
          */
         saveObject: function(object, callback) {
@@ -422,9 +422,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'PUT',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(object.objectID),
                                    body: object,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -432,7 +432,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param objects contains an array of objects to update (each object must contains a objectID attribute)
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
@@ -447,9 +447,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch",
                                    body: postObj,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -457,16 +457,16 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param objectID the unique identifier of object to delete
          * @param callback (optional) the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
          */
         deleteObject: function(objectID, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'DELETE',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID),
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -474,7 +474,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param query the full text query
          * @param callback the result callback with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that contains the list of results
          * @param classToDerive (optional) if set, hits will be an instance of this class
          * @param args (optional) if set, contains an object with query parameters:
@@ -509,8 +509,8 @@ AlgoliaSearch.prototype.Index.prototype = {
             }
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + params,
-                                   callback: function(success, res, body) {
-                if (success && !_.isUndefined(classToDerive)) {
+                                   callback: function(error, res, body) {
+                if (!error && !_.isUndefined(classToDerive)) {
                     for (var i in body.hits) {
                         var obj = new classToDerive();
                         _.extend(obj, body.hits[i]);
@@ -518,7 +518,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     }
                 }
                 if (!_.isUndefined(callback)) {
-                    callback(success, body);
+                    callback(error, body);
                 }
             }});
         },
@@ -529,20 +529,20 @@ AlgoliaSearch.prototype.Index.prototype = {
          *
          * @param taskID the id of the task returned by server
          * @param callback the result callback with with two arguments:
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer that contains the list of results
          */
         waitTask: function(taskID, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/task/" + taskID,
-                                   callback: function(success, res, body) {
-                if (success && body.status === "published") {
-                    callback(true, body);
-                } else if (success && body.pendingTask) {
+                                   callback: function(error, res, body) {
+                if (!error && body.status === "published") {
+                    callback(false, body);
+                } else if (!error && body.pendingTask) {
                     return indexObj.waitTask(taskID, callback);
                 } else {
-                    callback(false, body);
+                    callback(true, body);
                 }
             }});
         },
@@ -551,16 +551,16 @@ AlgoliaSearch.prototype.Index.prototype = {
          * Get settings of this index
          *
          * @param callback (optional) the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the settings object or the error message if a failure occured
          */
         getSettings: function(callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/settings",
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
 
@@ -597,7 +597,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *    The syntax of this condition is an array of strings containing attributes prefixed
          *    by asc (ascending order) or desc (descending order) operator.
          * @param callback (optional) the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the server answer or the error message if a failure occured
          */
         setSettings: function(settings, callback) {
@@ -605,57 +605,57 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'PUT',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/settings",
                                    body: settings,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
          * List all existing user keys associated to this index
          *
          * @param callback the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
-         *  content: the server answer with user keys list or error description if success is false.
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
          */
         listUserKeys: function(callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
          * Get ACL of a user key associated to this index
          *
          * @param callback the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
-         *  content: the server answer with user keys list or error description if success is false.
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
          */
         getUserKeyACL: function(key, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
          * Delete an existing user key associated to this index
          *
          * @param callback the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
-         *  content: the server answer with user keys list or error description if success is false.
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
          */
         deleteUserKey: function(key, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'DELETE',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -670,8 +670,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *   - settings : allows to get index settings (https only)
          *   - editSettings : allows to change index settings (https only)
          * @param callback the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
-         *  content: the server answer with user keys list or error description if success is false.
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
          */
         addUserKey: function(acls, callback) {
             var indexObj = this;
@@ -680,9 +680,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    body: aclsObject,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
         /*
@@ -698,8 +698,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *   - editSettings : allows to change index settings (https only)
          * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
          * @param callback the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
-         *  content: the server answer with user keys list or error description if success is false.
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
          */
         addUserKeyWithValidity: function(acls, validity, callback) {
             var indexObj = this;
@@ -709,9 +709,9 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    body: aclsObject,
-                                   callback: function(success, res, body) {
+                                   callback: function(error, res, body) {
                 if (!_.isUndefined(callback))
-                    callback(success, body);
+                    callback(error, body);
             }});
         },
 

@@ -76,10 +76,10 @@ The [1000-cities.json](https://github.com/algolia/algoliasearch-client-node/blob
 
 You can then start to search for a city name (even with typos):
 ```javascript
-index.search('san fran', function(success, content) {
+index.search('san fran', function(error, content) {
   console.log(content.hits);
 });
-index.search('loz anqel', function(success, content) {
+index.search('loz anqel', function(error, content) {
   console.log(content.hits);
 });
 ```
@@ -91,7 +91,7 @@ index.setSettings({'customRanking': ['desc(population)', 'asc(name)']});
 
 And then search for all cities that start with an "s":
 ```javascript
-index.search('s', function(success, content) {
+index.search('s', function(error, content) {
   console.log(content.hits);
 });
 ```
@@ -101,7 +101,7 @@ General Principle
 
 All API calls will return the result in a callback that takes two arguments:
 
- 1. **success**: a boolean that is set to false when an error was found.
+ 1. **error**: a boolean that is set to true when an error was found.
  2. **content**: the object containing the answer (if an error was found, you can retrieve the error message in `content.message`)
 
 Search
@@ -129,13 +129,13 @@ You can use the following optional arguments:
 
 ```javascript
 index = client.initIndex('MyIndexName');
-index.search('query string', function(success, content) {
+index.search('query string', function(error, content) {
     for (var h in content.hits) {
         console.log('Hit(' + content.hits[h].objectID + '): ' + content.hits[h].toString());
     }
 });
 
-index.search('query string', function(success, content) {
+index.search('query string', function(error, content) {
     for (var h in content.hits) {
         console.log('Hit(' + content.hits[h].objectID + '): ' + content.hits[h].toString());
     }
@@ -188,7 +188,7 @@ Example with automatic `objectID` assignement:
 
 ```javascript
 index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(success, content) {
+                 'population': 805235}, function(error, content) {
   console.log('objectID=' + content.objectID);
 });
 ```
@@ -196,7 +196,7 @@ index.addObject({'name': 'San Francisco',
 Example with manual `objectID` assignement:
 ```javascript
 index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(success, content) {
+                 'population': 805235}, function(error, content) {
   console.log('objectID=' + content.objectID);
 }, 'myID');
 ```
@@ -233,15 +233,15 @@ You can easily retrieve an object using its `objectID` and optionnaly a list of 
 
 ```javascript
 // Retrieves all attributes
-idx.getObject('myID', function(success, content) {
+idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
 });
 // Retrieves name and population attributes
-idx.getObject('myID', function(success, content) {
+idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
 }, "name,population");
 // Retrieves only the name attribute
-idx.getObject('myID', function(success, content) {
+idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
 }, "name");
 ```
@@ -286,7 +286,7 @@ You can retrieve all settings using the `getSettings` function. The result will 
 You can easily retrieve settings or update them:
 
 ```javascript
-index.getSettings(function(success, content) {
+index.getSettings(function(error, content) {
   console.log(content);
 });
 ```
@@ -300,7 +300,7 @@ List indexes
 You can list all your indexes with their associated information (number of entries, disk size, etc.) with the `listIndexes` method:
 
 ```javascript
-client.listIndexes(function(success, content) {
+client.listIndexes(function(error, content) {
   console.log(content);
 });
 ```
@@ -310,7 +310,7 @@ Delete an index
 You can delete an index using its name:
 
 ```javascript
-client.deleteIndex("cities", function(success, content) {
+client.deleteIndex("cities", function(error, content) {
   console.log(content);
 });
 ```
@@ -323,7 +323,7 @@ All write operations return a `taskID` when the job is securely stored on our in
 For example, to wait for indexing of a new object:
 ```javascript
 index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(success, content) {
+                 'population': 805235}, function(error, content) {
   index.waitTask(content.taskID, function() {
     console.log("object " + content.objectID + " indexed");
   });
@@ -345,7 +345,7 @@ Example using automatic `objectID` assignement:
 index.addObjects([{"name": "San Francisco", 
                   "population": 805235},
                  {"name":"Los Angeles",
-                  "population":3792621}], function(success, content) {
+                  "population":3792621}], function(error, content) {
   console.log(content);
 });
 ```
@@ -357,7 +357,7 @@ index.saveObjects([{"name": "San Francisco",
                     "objectID": "SFO"},
                    {"name":"Los Angeles",
                     "population":3792621,
-                    "objectID": "LA"}], function(success, content) {
+                    "objectID": "LA"}], function(error, content) {
   console.log(content);
 });
 ```
@@ -372,11 +372,11 @@ These API keys can be restricted to a set of operations or/and restricted to a g
 To list existing keys, you can use `listUserKeys` method:
 ```javascript
 // Lists global API Keys
-client.listUserKeys(function(success, content) {
+client.listUserKeys(function(error, content) {
     console.log(content);
 });
 // Lists API Keys that can access only to this index
-index.listUserKeys(function(success, content) {
+index.listUserKeys(function(error, content) {
     console.log(content);
 });
 ```
@@ -392,22 +392,22 @@ Each key is defined by a set of rights that specify the authorized actions. The 
 Example of API Key creation:
 ```javascript
 // Creates a new global API key that can only perform search actions
-client.addUserKey(["search"], function(success, content) {
+client.addUserKey(["search"], function(error, content) {
     console.log("Key:" + content['key']);
 });
 // Creates a new API key that can only perform search action on this index
-index.addUserKey(["search"], function(success, content) {
+index.addUserKey(["search"], function(error, content) {
     console.log("Key:" + content['key']);
 });
 ```
 You can also create a temporary API key that will be valid only for a specific period of time (in seconds):
 ```javascript
 // Creates a new global API key that is valid for 300 seconds
-client.addUserKeyWithValidity(["search"], 300, function(success, content) {
+client.addUserKeyWithValidity(["search"], 300, function(error, content) {
     console.log("Key:" + content['key']);
 });
 // Creates a new index specific API key valid for 300 seconds
-index.addUserKeyWithValidity(["search"], 300, function(success, content) {
+index.addUserKeyWithValidity(["search"], 300, function(error, content) {
     console.log("Key:" + content['key']);
 });
 ```
@@ -415,11 +415,11 @@ index.addUserKeyWithValidity(["search"], 300, function(success, content) {
 Get the rights of a given key:
 ```javascript
 // Gets the rights of a global key
-client.getUserKeyACL("7f2615414bc619352459e09895d2ebda", function(success, content) {
+client.getUserKeyACL("7f2615414bc619352459e09895d2ebda", function(error, content) {
     console.log(content);
 });
 // Gets the rights of an index specific key
-index.getUserKeyACL("9b9335cb7235d43f75b5398c36faabcd", function(success, content) {
+index.getUserKeyACL("9b9335cb7235d43f75b5398c36faabcd", function(error, content) {
     console.log(content);
 });
 ```
@@ -427,11 +427,11 @@ index.getUserKeyACL("9b9335cb7235d43f75b5398c36faabcd", function(success, conten
 Delete an existing key:
 ```javascript
 // Deletes a global key
-client.deleteUserKey("7f2615414bc619352459e09895d2ebda", function(success, content) {
+client.deleteUserKey("7f2615414bc619352459e09895d2ebda", function(error, content) {
     console.log(content);
 });
 // Deletes an index specific key
-index.deleteUserKey("9b9335cb7235d43f75b5398c36faabcd", function(success, content) {
+index.deleteUserKey("9b9335cb7235d43f75b5398c36faabcd", function(error, content) {
     console.log(content);
 });
 ```
