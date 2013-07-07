@@ -22,6 +22,7 @@
  */
 var _ = require('underscore');
 var https = require('https');
+var Buffers = require('buffers');
 
 /**
  * Algolia Search library initialization
@@ -247,7 +248,7 @@ AlgoliaSearch.prototype = {
           }
         };
         if (opts.hostname.indexOf(':') !== -1) {
-            var n = opts.hostname.split(":")
+            var n = opts.hostname.split(":");
             reqOpts.hostname = n[0];
             reqOpts.port = n[1];
         }
@@ -259,17 +260,16 @@ AlgoliaSearch.prototype = {
             reqOpts.agent = this.httpsAgent;
         }
         var req = https.request(reqOpts, function(res) {
-            res.setEncoding('utf8');
-
-            var success = (res.statusCode === 200 || res.statusCode === 201);
-            var body = "";
+            var success = (res.statusCode === 200 || res.statusCode === 201),
+                chunks = new Buffers();
 
             res.on('data', function(chunk) {
-                body += chunk;
+                chunks.push(chunk);
             });
 
             res.on('end', function() {
-                
+                var body = chunks.toString('utf8');
+
                 if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
                     body = JSON.parse(body);
 

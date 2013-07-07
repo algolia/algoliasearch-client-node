@@ -16,6 +16,13 @@
   "dependencies": {
     "underscore": "1.4.4"
    ,"agentkeepalive": "0.1.5"
+   ,"buffers": "0.1.1"
   },
-  "main": "./algoliasearch-node.js"
+  "devDependencies": {
+   "async": "*"
+  ,"moquire": "~1.5.1"
+  ,"mocha": "~1.12.0"
+  ,"should": "~1.2.2"
+}
+, "main": "./algoliasearch-node.js"
 }
