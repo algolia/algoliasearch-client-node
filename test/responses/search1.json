@@ -1,0 +1,24 @@
+{
+    "hits": [{
+        "name": "Los Angeles",
+        "population": 3792621,
+        "_geoloc": {
+            "lat": 34.052231,
+            "lng": -118.243683
+        },
+        "objectID": "1050",
+        "_highlightResult": {
+            "name": {
+                "value": "<em>Los</em> <em>Angel</em>es",
+                "matchLevel": "full"
+            }
+        }
+    }],
+    "page": 0,
+    "nbHits": 4,
+    "nbPages": 1,
+    "hitsPerPage": 20,
+    "processingTimeMS": 1,
+    "query": "loz anqel",
+    "params": "query=loz anqel"
+}
