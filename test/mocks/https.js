@@ -69,8 +69,8 @@ FakeResponse.prototype.simulate = function () {
       },
       function (done) {
         process.nextTick(function () {
-          var chunk = data.slice(0, 20);
-          data = data.slice(20);
+          var chunk = data.slice(0, data.length > 20 ? 20 : data.length);
+          data = data.slice(data.length > 20 ? 20 : data.length);
 
           remaining = data.length;
           self.emit('data', chunk);
