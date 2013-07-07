@@ -22,6 +22,7 @@
  */
 var _ = require('underscore');
 var https = require('https');
+var Buffers = require('buffers');
 
 /**
  * Algolia Search library initialization
@@ -247,7 +248,7 @@ AlgoliaSearch.prototype = {
           }
         };
         if (opts.hostname.indexOf(':') !== -1) {
-            var n = opts.hostname.split(":")
+            var n = opts.hostname.split(":");
             reqOpts.hostname = n[0];
             reqOpts.port = n[1];
         }
