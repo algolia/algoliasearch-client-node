@@ -57,7 +57,7 @@ AlgoliaSearch.prototype = {
     deleteIndex: function(indexName, callback) {
         var indexObj = this;
         this._jsonRequest({ method: 'DELETE',
-                            url: '/1/indexes/' + indexName,
+                            url: '/1/indexes/' + encodeURIComponent(indexName),
                             callback: function(success, res, body) {
             if (!_.isUndefined(callback))
                 callback(success, body);
@@ -322,7 +322,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }});
             } else {
                 this.as._jsonRequest({ method: 'PUT',
-                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID,
+                                       url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID),
                                        body: content,
                                        callback: function(success, res, body) {
                     if (!_.isUndefined(callback))
@@ -377,7 +377,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }
             }
             this.as._jsonRequest({ method: 'GET',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID + params,
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID) + params,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(classToDerive)) {
                     var obj = new classToDerive();
@@ -463,7 +463,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         deleteObject: function(objectID, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'DELETE',
-                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + objectID,
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/" + encodeURIComponent(objectID),
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -503,7 +503,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          */
         search: function(query, callback, args, classToDerive) {
             var indexObj = this;
-            var params = "?query=" + query;
+            var params = "?query=" + encodeURIComponent(query);
             if (!_.isUndefined(args)) {
                 params = this._getSearchParams(args, params);
             }
@@ -603,7 +603,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         setSettings: function(settings, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'PUT',
-                                   url: '/1/indexes/' + indexObj.indexName + "/settings",
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/settings",
                                    body: settings,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -620,7 +620,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         listUserKeys: function(callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
-                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -636,7 +636,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         getUserKeyACL: function(key, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
-                                   url: '/1/indexes/' + indexObj.indexName + '/keys/' + key,
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -652,7 +652,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         deleteUserKey: function(key, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'DELETE',
-                                   url: '/1/indexes/' + indexObj.indexName + '/keys/' + key,
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys/' + key,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
                     callback(success, body);
@@ -678,7 +678,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             var aclsObject = new Object();
             aclsObject.acl = acls;
             this.as._jsonRequest({ method: 'POST',
-                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    body: aclsObject,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
@@ -707,7 +707,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             aclsObject.acl = acls;
             aclsObject.validity = validity;
             this.as._jsonRequest({ method: 'POST',
-                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    body: aclsObject,
                                    callback: function(success, res, body) {
                 if (!_.isUndefined(callback))
