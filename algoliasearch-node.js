@@ -22,7 +22,6 @@
  */
 var _ = require('underscore');
 var https = require('https');
-var Buffers = require('buffers');
 
 /**
  * Algolia Search library initialization
@@ -143,8 +142,7 @@ AlgoliaSearch.prototype = {
      * @param acls the list of ACL for this key. Defined by an array of strings that
      * can contains the following values:
      *   - search: allow to search (https and http)
-     *   - addObject: allows to add a new object in the index (https only)
-     *   - updateObject : allows to change content of an existing object (https only)
+     *   - addObject: allows to add/update an object in the index (https only)
      *   - deleteObject : allows to delete an existing object (https only)
      *   - deleteIndex : allows to delete index content (https only)
      *   - settings : allows to get index settings (https only)
@@ -157,6 +155,35 @@ AlgoliaSearch.prototype = {
         var indexObj = this;
         var aclsObject = new Object();
         aclsObject.acl = acls;
+        this._jsonRequest({ method: 'POST',
+                            url: '/1/keys',
+                            body: aclsObject,
+                            callback: function(success, res, body) {
+            if (!_.isUndefined(callback))
+                callback(success, body);
+        }});
+    },
+    /*
+     * Add an existing user key
+     *
+     * @param acls the list of ACL for this key. Defined by an array of strings that
+     * can contains the following values:
+     *   - search: allow to search (https and http)
+     *   - addObject: allows to add/update an object in the index (https only)
+     *   - deleteObject : allows to delete an existing object (https only)
+     *   - deleteIndex : allows to delete index content (https only)
+     *   - settings : allows to get index settings (https only)
+     *   - editSettings : allows to change index settings (https only)
+     * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+     * @param callback the result callback with two arguments
+     *  success: boolean set to true if the request was successfull
+     *  content: the server answer with user keys list or error description if success is false.
+     */
+    addUserKeyWithValidity: function(acls, validity, callback) {
+        var indexObj = this;
+        var aclsObject = new Object();
+        aclsObject.acl = acls;
+        aclsObject.validity = validity;
         this._jsonRequest({ method: 'POST',
                             url: '/1/keys',
                             body: aclsObject,
@@ -453,7 +480,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  - attributes: a string that contains attribute names to retrieve separated by a comma.
          *    By default all attributes are retrieved.
          *  - attributesToHighlight: a string that contains attribute names to highlight separated by a comma.
-         *    By default all attributes are highlighted.
+         *    By default indexed attributes are highlighted.
          *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
          *     Defaults to 3.
          *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
@@ -470,8 +497,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *    a rectangle (defined by 4 floats: p1Lat,p1Lng,p2Lat, p2Lng.
          *    For example insideBoundingBox=47.3165,4.9665,47.3424,5.0201).
          *    At indexing, geoloc of an object should be set with _geoloc attribute containing lat and lng attributes (for example {"_geoloc":{"lat":48.853409, "lng":2.348800}})
-         *  - tags let you filter the query by a set of tags (contains a list of tags separated by ',').
-         *    At indexing, tags should be added in _tags attribute of objects (for example {"_tags":["tag1","tag2"]} )
+         *  - tags filter the query by a set of tags. You can AND tags by separating them by commas. To OR tags, you must add parentheses. For example, tags=tag1,(tag2,tag3) means tag1 AND (tag2 OR tag3).
+         *    At indexing, tags should be added in the _tags attribute of objects (for example {"_tags":["tag1","tag2"]} )
          */
         search: function(query, callback, args, classToDerive) {
             var indexObj = this;
@@ -544,7 +571,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  - minWordSizeForApprox2: (integer) the minimum number of characters to accept two typos (default = 7)
          *  - hitsPerPage: (integer) the number of hits per page (default = 10)
          *  - attributesToRetrieve: (array of strings) default list of attributes to retrieve for objects
-         *  - attributesToHighlight: (array of strings) default list of attributes to highlight
+         *  - attributesToHighlight: (array of strings) default list of attributes to highlight.
+         *  -  attributesToSnippet:  (array of strings) default list of attributes to snippet alongside the number of words to return (syntax is 'attributeName:nbWords'). Attributes are separated by a comma (Example: "attributesToSnippet=name:10,content:10").<br/>By default no snippet is computed.
          *  - attributesToIndex: (array of strings) the list of fields you want to index.
          *    By default all textual attributes of your objects are indexed, but you should update it to get optimal
          *    results. This parameter has two important uses:
@@ -560,6 +588,10 @@ AlgoliaSearch.prototype.Index.prototype = {
          *       - position (sort according to the matching attribute),
          *       - custom which is user defined
          *     (the standard order is ["typo", "position", "custom"])
+         *  - queryType: select how the query words are interpreted:
+         *      - prefixAll: all query words are interpreted as prefixes (default behavior).
+         *      - prefixLast: only the last word is interpreted as a prefix. This option is recommended if you have a lot of content to speedup the processing.
+         *      - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
          *  - customRanking: (array of strings) lets you specify part of the ranking.
          *    The syntax of this condition is an array of strings containing attributes prefixed
          *    by asc (ascending order) or desc (descending order) operator.
@@ -577,7 +609,110 @@ AlgoliaSearch.prototype.Index.prototype = {
                     callback(success, body);
             }});
         },
-
+        /*
+         * List all existing user keys associated to this index
+         *
+         * @param callback the result callback with two arguments
+         *  success: boolean set to true if the request was successfull
+         *  content: the server answer with user keys list or error description if success is false.
+         */
+        listUserKeys: function(callback) {
+            var indexObj = this;
+            this.as._jsonRequest({ method: 'GET',
+                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   callback: function(success, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(success, body);
+            }});
+        },
+        /*
+         * Get ACL of a user key associated to this index
+         *
+         * @param callback the result callback with two arguments
+         *  success: boolean set to true if the request was successfull
+         *  content: the server answer with user keys list or error description if success is false.
+         */
+        getUserKeyACL: function(key, callback) {
+            var indexObj = this;
+            this.as._jsonRequest({ method: 'GET',
+                                   url: '/1/indexes/' + indexObj.indexName + '/keys/' + key,
+                                   callback: function(success, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(success, body);
+            }});
+        },
+        /*
+         * Delete an existing user key associated to this index
+         *
+         * @param callback the result callback with two arguments
+         *  success: boolean set to true if the request was successfull
+         *  content: the server answer with user keys list or error description if success is false.
+         */
+        deleteUserKey: function(key, callback) {
+            var indexObj = this;
+            this.as._jsonRequest({ method: 'DELETE',
+                                   url: '/1/indexes/' + indexObj.indexName + '/keys/' + key,
+                                   callback: function(success, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(success, body);
+            }});
+        },
+        /*
+         * Add an existing user key associated to this index
+         *
+         * @param acls the list of ACL for this key. Defined by an array of strings that
+         * can contains the following values:
+         *   - search: allow to search (https and http)
+         *   - addObject: allows to add/update an object in the index (https only)
+         *   - deleteObject : allows to delete an existing object (https only)
+         *   - deleteIndex : allows to delete index content (https only)
+         *   - settings : allows to get index settings (https only)
+         *   - editSettings : allows to change index settings (https only)
+         * @param callback the result callback with two arguments
+         *  success: boolean set to true if the request was successfull
+         *  content: the server answer with user keys list or error description if success is false.
+         */
+        addUserKey: function(acls, callback) {
+            var indexObj = this;
+            var aclsObject = new Object();
+            aclsObject.acl = acls;
+            this.as._jsonRequest({ method: 'POST',
+                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   body: aclsObject,
+                                   callback: function(success, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(success, body);
+            }});
+        },
+        /*
+         * Add an existing user key associated to this index
+         *
+         * @param acls the list of ACL for this key. Defined by an array of strings that
+         * can contains the following values:
+         *   - search: allow to search (https and http)
+         *   - addObject: allows to add/update an object in the index (https only)
+         *   - deleteObject : allows to delete an existing object (https only)
+         *   - deleteIndex : allows to delete index content (https only)
+         *   - settings : allows to get index settings (https only)
+         *   - editSettings : allows to change index settings (https only)
+         * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+         * @param callback the result callback with two arguments
+         *  success: boolean set to true if the request was successfull
+         *  content: the server answer with user keys list or error description if success is false.
+         */
+        addUserKeyWithValidity: function(acls, validity, callback) {
+            var indexObj = this;
+            var aclsObject = new Object();
+            aclsObject.acl = acls;
+            aclsObject.validity = validity;
+            this.as._jsonRequest({ method: 'POST',
+                                   url: '/1/indexes/' + indexObj.indexName + '/keys',
+                                   body: aclsObject,
+                                   callback: function(success, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(success, body);
+            }});
+        },
 
         ///
         /// Internal methods only after this line
@@ -589,7 +724,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  - attributes: an array of object attribute names to retrieve
          *     (if not set all attributes are retrieve)
          *  - attributesToHighlight: an array of object attribute names to highlight
-         *     (if not set all textual attributes are highlighted)
+         *     (if not set indexed attributes are highlighted)
          *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
          *     Defaults to 3.
          *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
