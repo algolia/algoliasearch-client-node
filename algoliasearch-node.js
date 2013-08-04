@@ -34,6 +34,11 @@ var Buffers = require('buffers');
 var AlgoliaSearch = function(applicationID, apiKey, hostsArray, httpsAgent) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
+    if (_.isUndefined(hostsArray))
+        hostsArray = [applicationID + '-1.algolia.io', 
+                      applicationID + '-2.algolia.io',
+                      applicationID + '-3.algolia.io'];
+  
     // Add hosts in random order
     for (var i = 0; i < hostsArray.length; ++i) {
         if (Math.random() > 0.5)

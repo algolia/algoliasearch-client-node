@@ -36,13 +36,12 @@ To setup your project, follow these steps:
 npm install algolia-search
 ```
 
- 2. Initialize the client with your ApplicationID, API-Key and list of hostnames (you can find all of them on your Algolia account)
+ 2. Initialize the client with your ApplicationID and API-Key (you can find all of them on your Algolia account)
  
 Initialization without keep-alive:
 ```javascript
 var Algolia = require('./algoliasearch-node');
-var client = new Algolia('ApplicationID', 'API-Key', 
-      ['YourHostname-1.algolia.io', 'YourHostname-2.algolia.io', 'YourHostname-3.algolia.io']);
+var client = new Algolia('ApplicationID', 'API-Key');
 ```
 
 Initialization with keep-alive enabled:
