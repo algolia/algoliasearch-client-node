@@ -55,9 +55,7 @@ var keepaliveAgent = new HttpsAgent({
     maxKeepAliveTime: 30000 // keepalive for 30 seconds
 });
 
-var client = new Algolia('ApplicationID', 'API-Key', 
-      ['YourHostname-1.algolia.io', 'YourHostname-2.algolia.io', 'YourHostname-3.algolia.io'],
-      keepaliveAgent);
+var client = new Algolia('ApplicationID', 'API-Key', keepaliveAgent);
 ```
 Note: if you are using keep-alive in a command-line tool, your program will exit after the keep-alive timeout is expired. You should use a connection without keep-alive in a command-line tool.
 
@@ -65,32 +63,49 @@ Quick Start
 -------------
 This quick start is a 30 seconds tutorial where you can discover how to index and search objects.
 
-Without any prior-configuration, you can index the 1000 world's biggest cities in the ```cities``` index with the following code:
+Without any prior-configuration, you can index [500 contacts](https://github.com/algolia/algoliasearch-client-node/blob/master/contacts.json) in the ```contacts``` index with the following code:
 ```javascript
-var index = client.initIndex('cities');
-var fileJSON = require('./1000-cities.json');
+var index = client.initIndex('contacts');
+var fileJSON = require('./contacts.json');
 index.addObjects(fileJSON['objects']);
 ```
-The [1000-cities.json](https://github.com/algolia/algoliasearch-client-node/blob/master/1000-cities.json) file contains city names extracted from [Geonames](http://www.geonames.org).
 
-You can then start to search for a city name (even with typos):
+You can then start to search for a contact firstname, lastname, company, ... (even with typos):
 ```javascript
-index.search('san fran', function(error, content) {
+// search by firstname
+index.search('jimmie', function(error, content) {
   console.log(content.hits);
 });
-index.search('loz anqel', function(error, content) {
+// search a firstname with typo
+index.search('jimie', function(error, content) {
+  console.log(content.hits);
+});
+// search for a company
+index.search('california paint', function(error, content) {
+  console.log(content.hits);
+});
+// search for a firstname & company
+index.search('jimmie paint', function(error, content) {
   console.log(content.hits);
 });
 ```
 
-Settings can be customized to tune the index behavior. For example you can add a custom sort by population to the already good out-of-the-box relevance to raise bigger cities above smaller ones. To update the settings, use the following code:
+Settings can be customized to tune the search behavior. For example you can add a custom sort by number of followers to the already good out-of-the-box relevance:
 ```javascript
-index.setSettings({'customRanking': ['desc(population)', 'asc(name)']});
+index.setSettings({'customRanking': ['desc(followers)']});
+```
+You can also configure the list of attributes you want to index by order of importance (first = most important):
+```javascript
+index.setSettings({'attributesToIndex': ['lastname', 'firstname', 'company', 
+                                         'email', 'city', 'address']});
 ```
 
-And then search for all cities that start with an "s":
+Since the engine is designed to suggest results as you type, you'll generally search by prefix. In this case the order of attributes is very important to decide which hit is the best:
 ```javascript
-index.search('s', function(error, content) {
+index.search('or', function(error, content) {
+  console.log(content.hits);
+});
+index.search('jim', function(error, content) {
   console.log(content.hits);
 });
 ```
@@ -127,7 +142,7 @@ You can use the following optional arguments:
  * **tags**: filter the query by a set of tags. You can AND tags by separating them by commas. To OR tags, you must add parentheses. For example, `tags=tag1,(tag2,tag3)` means *tag1 AND (tag2 OR tag3)*.<br/>At indexing, tags should be added in the _tags attribute of objects (for example `{"_tags":["tag1","tag2"]}` )
 
 ```javascript
-index = client.initIndex('MyIndexName');
+index = client.initIndex('contacts');
 index.search('query string', function(error, content) {
     for (var h in content.hits) {
         console.log('Hit(' + content.hits[h].objectID + '): ' + content.hits[h].toString());
@@ -138,37 +153,64 @@ index.search('query string', function(error, content) {
     for (var h in content.hits) {
         console.log('Hit(' + content.hits[h].objectID + '): ' + content.hits[h].toString());
     }
-}, {'attributes': 'population,name', 'hitsPerPage': 50});
+}, {'attributes': 'firstname,lastname', 'hitsPerPage': 50});
 ```
 
 The server response will look like:
 
 ```javascript
-{ 
+{
   "hits": [
-            { "name": "Betty Jane Mccamey",
-              "company": "Vita Foods Inc.",
-              "email": "betty@mccamey.com",
-              "objectID": "6891Y2usk0",
-              "_highlightResult": {"name": {"value": "Betty <em>Jan</em>e Mccamey", "matchLevel": "full"}, 
-                                   "company": {"value": "Vita Foods Inc.", "matchLevel": "none"},
-                                   "email": {"value": "betty@mccamey.com", "matchLevel": "none"} }
-            },
-            { "name": "Gayla Geimer Dan", 
-              "company": "Ortman Mccain Co", 
-              "email": "gayla@geimer.com", 
-              "objectID": "ap78784310" 
-              "_highlightResult": {"name": {"value": "Gayla Geimer <em>Dan</em>", "matchLevel": "full" },
-                                   "company": {"value": "Ortman Mccain Co", "matchLevel": "none" },
-                                   "email": {"highlighted": "gayla@geimer.com", "matchLevel": "none" } }
-            }
-          ],
-  "page":0,
-  "nbHits":2,
-  "nbPages":1,
-  "hitsPerPage:":20,
-  "processingTimeMS":1,
-  "query":"jan"
+    {
+      "firstname": "Jimmie",
+      "lastname": "Barninger",
+      "company": "California Paint & Wlpaper Str",
+      "address": "Box #-4038",
+      "city": "Modesto",
+      "county": "Stanislaus",
+      "state": "CA",
+      "zip": "95352",
+      "phone": "209-525-7568",
+      "fax": "209-525-4389",
+      "email": "jimmie@barninger.com",
+      "web": "http://www.jimmiebarninger.com",
+      "followers": 3947,
+      "objectID": "433",
+      "_highlightResult": {
+        "firstname": {
+          "value": "<em>Jimmie</em>",
+          "matchLevel": "partial"
+        },
+        "lastname": {
+          "value": "Barninger",
+          "matchLevel": "none"
+        },
+        "company": {
+          "value": "California <em>Paint</em> & Wlpaper Str",
+          "matchLevel": "partial"
+        },
+        "address": {
+          "value": "Box #-4038",
+          "matchLevel": "none"
+        },
+        "city": {
+          "value": "Modesto",
+          "matchLevel": "none"
+        },
+        "email": {
+          "value": "<em>jimmie</em>@barninger.com",
+          "matchLevel": "partial"
+        }
+      }
+    }
+  ],
+  "page": 0,
+  "nbHits": 1,
+  "nbPages": 1,
+  "hitsPerPage": 20,
+  "processingTimeMS": 1,
+  "query": "jimmie paint",
+  "params": "query=jimmie+paint&"
 }
 ```
 
@@ -186,16 +228,16 @@ Objects are schema less, you don't need any configuration to start indexing. The
 Example with automatic `objectID` assignement:
 
 ```javascript
-index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(error, content) {
+index.addObject({'firstname': 'Jimmie', 
+                 'lastname': 'Barninger'}, function(error, content) {
   console.log('objectID=' + content.objectID);
 });
 ```
 
 Example with manual `objectID` assignement:
 ```javascript
-index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(error, content) {
+index.addObject({'firstname': 'Jimmie', 
+                 'lastname': 'Barninger'}, function(error, content) {
   console.log('objectID=' + content.objectID);
 }, 'myID');
 ```
@@ -213,15 +255,16 @@ You have two options to update an existing object:
 Example to replace all the content of an existing object:
 
 ```javascript
-index.saveObject({'name': 'Los Angeles', 
-                  'population': 3792621,
+index.saveObject({'firstname': 'Jimmie', 
+                  'lastname': 'Barninger',
+                  'city': 'New York',
                   'objectID': 'myID'});
 ```
 
-Example to update only the population attribute of an existing object:
+Example to update only the city attribute of an existing object:
 
 ```javascript
-index.partialUpdateObject({'population': 3792621,
+index.partialUpdateObject({'city': 'San Francisco',
                            'objectID': 'myID'});
 ```
 
@@ -235,14 +278,14 @@ You can easily retrieve an object using its `objectID` and optionnaly a list of 
 idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
 });
-// Retrieves name and population attributes
+// Retrieves firstname and lastname attributes
 idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
-}, "name,population");
-// Retrieves only the name attribute
+}, "firstname,lastname");
+// Retrieves only the firstname attribute
 idx.getObject('myID', function(error, content) {
   console.log(content.objectID + ": " + content.toString());
-}, "name");
+}, "firstname");
 ```
 
 Delete an object
@@ -292,7 +335,7 @@ index.getSettings(function(error, content) {
 ```
 
 ```javascript
-index.setSettings({'customRanking': ['desc(population)', 'asc(name)']});
+index.setSettings({'customRanking': ['desc(followers)']});
 ```
 
 List indexes
@@ -310,7 +353,7 @@ Delete an index
 You can delete an index using its name:
 
 ```javascript
-client.deleteIndex("cities", function(error, content) {
+client.deleteIndex("contacts", function(error, content) {
   console.log(content);
 });
 ```
@@ -322,8 +365,8 @@ All write operations return a `taskID` when the job is securely stored on our in
 
 For example, to wait for indexing of a new object:
 ```javascript
-index.addObject({'name': 'San Francisco', 
-                 'population': 805235}, function(error, content) {
+index.addObject({'firstname': 'Jimmie', 
+                 'lastname': 'Barninger'}, function(error, content) {
   index.waitTask(content.taskID, function() {
     console.log("object " + content.objectID + " indexed");
   });
@@ -342,22 +385,22 @@ We expose two methods to perform batches:
 
 Example using automatic `objectID` assignement:
 ```javascript
-index.addObjects([{"name": "San Francisco", 
-                  "population": 805235},
-                 {"name":"Los Angeles",
-                  "population":3792621}], function(error, content) {
+index.addObjects([{"firstname": "Jimmie", 
+                   "lastname": "Barninger"},
+                  {"firstname": "Warren",
+                   "lastname": "Speach"}], function(error, content) {
   console.log(content);
 });
 ```
 
 Example with user defined `objectID` (add or update):
 ```javascript
-index.saveObjects([{"name": "San Francisco", 
-                    "population": 805235,
-                    "objectID": "SFO"},
-                   {"name":"Los Angeles",
-                    "population":3792621,
-                    "objectID": "LA"}], function(error, content) {
+index.saveObjects([{"firstname": "Jimmie", 
+                    "lastname": "Barninger",
+                    "objectID": "myID1"},
+                   {"firstname": "Warren",
+                   "lastname": "Speach",
+                    "objectID": "myID2"}], function(error, content) {
   console.log(content);
 });
 ```

@@ -31,7 +31,7 @@ var Buffers = require('buffers');
  * @param hostsArray the list of hosts that you have received for the service
  * @param httpsAgent (optional) an agent to pass to https service (can be agentkeepalive module to minimize latency)
  */
-var AlgoliaSearch = function(applicationID, apiKey, hostsArray, httpsAgent) {
+var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
     if (_.isUndefined(hostsArray))
