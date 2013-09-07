@@ -222,8 +222,11 @@ AlgoliaSearch.prototype = {
                 callback(true, null, { message: "Cannot contact server"});
                 return;
             }
-            opts.callback = function(error, res, body) {
-                if (error && (idx + 1) < self.hosts.length) {
+            opts.callback = function(retry, error, res, body) {
+                if (error && !_.isUndefined(body)) {
+                    console.log("Error: " + body.message);
+                }
+                if (retry && error && (idx + 1) < self.hosts.length) {
                     impl(idx + 1);
                 } else {
                     callback(error, res, body);
@@ -265,6 +268,7 @@ AlgoliaSearch.prototype = {
             reqOpts.agent = this.httpsAgent;
         }
         var req = https.request(reqOpts, function(res) {
+            var retry = res.statusCode === 0 || res.statusCode === 503;
             var success = (res.statusCode === 200 || res.statusCode === 201),
                 chunks = new Buffers();
 
@@ -279,11 +283,11 @@ AlgoliaSearch.prototype = {
                     body = JSON.parse(body);
 
                 }
-                opts.callback(!success, res, body);
+                opts.callback(retry, !success, res, body);
             });
         });
         req.on('error', function(e) {
-            opts.callback(true, null, { 'message': e} );
+            opts.callback(true, true, null, { 'message': e} );
         });
 
         if (body !== null) {
