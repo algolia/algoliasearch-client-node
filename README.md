@@ -69,7 +69,7 @@ Without any prior-configuration, you can index [500 contacts](https://github.com
 ```javascript
 var index = client.initIndex('contacts');
 var fileJSON = require('./contacts.json');
-index.addObjects(fileJSON['objects']);
+index.addObjects(fileJSON);
 ```
 
 You can then start to search for a contact firstname, lastname, company, ... (even with typos):
