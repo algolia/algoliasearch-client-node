@@ -559,9 +559,9 @@ AlgoliaSearch.prototype.Index.prototype = {
          *    You can have multiple conditions on one attribute like for example `numerics=price>100,price<1000`.         
          *  - attributesToHighlight: a string that contains attribute names to highlight separated by a comma.
          *    By default indexed attributes are highlighted.
-         *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
+         *  - minWordSizefor1Typo: the minimum number of characters to accept one typo.
          *     Defaults to 3.
-         *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
+         *  - minWordSizefor2Typos: the minimum number of characters to accept two typos.
          *     Defaults to 7.
          *  - getRankingInfo: if set, the result hits will contain ranking information in
          *     _rankingInfo attribute
@@ -645,8 +645,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          * Set settings for this index
          *
          * @param settigns the settings object that can contains :
-         *  - minWordSizeForApprox1 (integer) the minimum number of characters to accept one typo (default = 3)
-         *  - minWordSizeForApprox2: (integer) the minimum number of characters to accept two typos (default = 7)
+         *  - minWordSizefor1Typo (integer) the minimum number of characters to accept one typo (default = 3)
+         *  - minWordSizefor2Typos: (integer) the minimum number of characters to accept two typos (default = 7)
          *  - hitsPerPage: (integer) the number of hits per page (default = 10)
          *  - attributesToRetrieve: (array of strings) default list of attributes to retrieve for objects
          *  - attributesToHighlight: (array of strings) default list of attributes to highlight.
@@ -660,6 +660,9 @@ AlgoliaSearch.prototype.Index.prototype = {
          *       - Control part of the ranking (see the ranking parameter for full explanation).
          *         Matches in attributes at the beginning of the list will be considered more important than matches
          *         in attributes further down the list.
+         *         In one attribute, matching text at the beginning of the attribute will be considered more important than text after, 
+         *         you can disable this behavior if you add your attribute inside `unordered(AttributeName)`, 
+         *         for example `attributesToIndex:["title", "unordered(text)"]`.
          *  - ranking: (array of strings) controls the way results are sorted.
          *     We have three available criteria:
          *       - typo (sort according to number of typos),
@@ -670,8 +673,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *       - custom which is user defined
          *     (the standard order is ["typo", "geo", "proximity", "attribute", "exact", "custom"])
          *  - queryType: select how the query words are interpreted:
-         *      - prefixAll: all query words are interpreted as prefixes (default behavior).
-         *      - prefixLast: only the last word is interpreted as a prefix. This option is recommended if you have a lot of content to speedup the processing.
+         *      - prefixAll: all query words are interpreted as prefixes,
+         *      - prefixLast: only the last word is interpreted as a prefix (default behavior),
          *      - prefixNone: no query word is interpreted as a prefix. This option is not recommended.
          *  - customRanking: (array of strings) lets you specify part of the ranking.
          *    The syntax of this condition is an array of strings containing attributes prefixed
@@ -800,20 +803,6 @@ AlgoliaSearch.prototype.Index.prototype = {
         ///
         /*
          * Transform search param object in query string
-         *
-         * Attributes are:
-         *  - attributes: an array of object attribute names to retrieve
-         *     (if not set all attributes are retrieve)
-         *  - attributesToHighlight: an array of object attribute names to highlight
-         *     (if not set indexed attributes are highlighted)
-         *  - minWordSizeForApprox1: the minimum number of characters to accept one typo.
-         *     Defaults to 3.
-         *  - minWordSizeForApprox2: the minimum number of characters to accept two typos.
-         *     Defaults to 7.
-         *  - getRankingInfo: if set, the result hits will contain ranking information in
-         *     _rankingInfo attribute
-         *  - page: (pagination parameter) page to retrieve (zero base). Defaults to 0.
-         *  - hitsPerPage: (pagination parameter) number of hits per page. Defaults to 10.
          */
         _getSearchParams: function(args, params) {
             if (_.isUndefined(args) || args == null) {
