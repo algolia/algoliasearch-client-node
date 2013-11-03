@@ -42,14 +42,14 @@ npm install algolia-search
 
 Initialization without keep-alive:
 ```javascript
-var Algolia = require('./algoliasearch-node');
+var Algolia = require('algolia-search');
 var client = new Algolia('ApplicationID', 'API-Key');
 ```
 
 Initialization with keep-alive enabled:
 ```javascript
 var HttpsAgent = require('agentkeepalive').HttpsAgent;
-var Algolia = require('./algoliasearch-node');
+var Algolia = require('algolia-search');
 
 var keepaliveAgent = new HttpsAgent({
     maxSockets: 1,
