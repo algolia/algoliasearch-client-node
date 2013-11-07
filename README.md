@@ -43,14 +43,14 @@ npm install algolia-search
 
 Initialization without keep-alive:
 ```javascript
-var Algolia = require('./algoliasearch-node');
+var Algolia = require('algolia-search');
 var client = new Algolia('ApplicationID', 'API-Key');
 ```
 
 Initialization with keep-alive enabled:
 ```javascript
 var HttpsAgent = require('agentkeepalive').HttpsAgent;
-var Algolia = require('./algoliasearch-node');
+var Algolia = require('algolia-search');
 
 var keepaliveAgent = new HttpsAgent({
     maxSockets: 1,
@@ -127,6 +127,7 @@ Search
 
 To perform a search, you just need to initialize the index and perform a call to the search function.<br/>
 You can use the following optional arguments:
+
  * **page**: (integer) Pagination parameter used to select the page to retrieve.<br/>Page is zero-based and defaults to 0. Thus, to retrieve the 10th page you need to set `page=9`
  * **hitsPerPage**: (integer) Pagination parameter used to select the number of hits per page. Defaults to 20.
  * **attributesToRetrieve**: a string that contains the list of object attributes you want to retrieve (let you minimize the answer size).<br/> Attributes are separated with a comma (for example `"name,address"`), you can also use a string array encoding (for example `["name","address"]` ). By default, all attributes are retrieved. You can also use `* to retrieve all values when an **attributesToRetrieve** setting is specified for your index.
@@ -481,20 +482,27 @@ index.deleteUserKey("9b9335cb7235d43f75b5398c36faabcd", function(error, content)
 Copy or rename an index
 -------------
 
-You can easily copy or rename an existing index using the `copy` and `move` command. 
+You can easily copy or rename an existing index using the `copy` and `move` commands.
 **Note**: Move and copy commands overwrite destination index.
 
-The move command is particulary usefull is you want to update a big index atomically from one version to another. For example, if you recreate your index `MyIndex`each night from a database by batch, you have just to :
- 1. Import your database in a new index using [batches](#batch-writes). We will call this new index `MyNewIndex`
- 1. Rename `MyNewIndex` in `MyIndex` using the move command. This will automatically override the old index and new queries will be served on this index.
-
 ```javascript
-// Rename MyNewIndex in MyIndex
-client.moveIndex("MyNewIndex", "MyIndex", function(error, content) {
+// Rename MyIndex in MyIndexNewName
+client.moveIndex("MyIndex", "MyIndexNewName", function(error, content) {
   console.log(content);
 });
-// Copy MyNewIndex in MyIndex
-client.copyIndex("MyNewIndex", "MyIndex", function(error, content) {
+// Copy MyIndex in MyIndexCopy
+client.copyIndex("MyIndex", "MyIndexCopy", function(error, content) {
+  console.log(content);
+});
+```
+
+The move command is particularly useful is you want to update a big index atomically from one version to another. For example, if you recreate your index `MyIndex` each night from a database by batch, you just have to:
+ 1. Import your database in a new index using [batches](#batch-writes). Let's call this new index `MyNewIndex`.
+ 1. Rename `MyNewIndex` in `MyIndex` using the move command. This will automatically override the old index and new queries will be served on the new one.
+
+```javascript
+// Rename MyNewIndex in MyIndex (and overwrite it)
+client.moveIndex("MyNewIndex", "MyIndex", function(error, content) {
   console.log(content);
 });
 ```
@@ -502,7 +510,7 @@ client.copyIndex("MyNewIndex", "MyIndex", function(error, content) {
 Logs
 -------------
 
-You can retrieve last logs via this API. Each log entry contains: 
+You can retrieve the last logs via this API. Each log entry contains: 
  * Timestamp in ISO-8601 format
  * Client IP
  * Request Headers (API-Key is obfuscated)
@@ -513,9 +521,9 @@ You can retrieve last logs via this API. Each log entry contains:
  * Answer body
  * SHA1 ID of entry
 
-You can retrieve log of your last 1000 API calls and you can navigate into them using the offset/length parameter:
+You can retrieve the logs of your last 1000 API calls and browse them using the offset/length parameters:
  * ***offset***: Specify the first entry to retrieve (0-based, 0 is the most recent log entry). Default to 0.
- * ***length***: Specify the maximum number of entries to retrieve starting at offset. Default to 10. Maximum allowed value: 1000.
+ * ***length***: Specify the maximum number of entries to retrieve starting at offset. Defaults to 10. Maximum allowed value: 1000.
 
 ```javascript
 // Get last 10 log entries
