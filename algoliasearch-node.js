@@ -240,15 +240,20 @@ AlgoliaSearch.prototype = {
      *   - settings : allows to get index settings (https only)
      *   - editSettings : allows to change index settings (https only)
      * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+     * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour. Defaults to 0 (no rate limit).
+     * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. Defaults to 0 (unlimited)   
      * @param callback the result callback with two arguments
      *  error: boolean set to true if the request had an error
      *  content: the server answer with user keys list or error description if error is true.
      */
-    addUserKeyWithValidity: function(acls, validity, callback) {
+    addUserKeyWithValidity: function(acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, callback) {
         var indexObj = this;
         var aclsObject = new Object();
         aclsObject.acl = acls;
         aclsObject.validity = validity;
+        aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+        aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+
         this._jsonRequest({ method: 'POST',
                             url: '/1/keys',
                             body: aclsObject,
@@ -660,7 +665,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     callback(error, body);
             }});
         },
-        
+
         /*
          * This function deletes the index content. Settings and index specific API keys are kept untouched.
          *
@@ -822,15 +827,20 @@ AlgoliaSearch.prototype.Index.prototype = {
          *   - settings : allows to get index settings (https only)
          *   - editSettings : allows to change index settings (https only)
          * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+         * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour.  Defaults to 0 (no rate limit).
+         * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. Defaults to 0 (unlimited) 
          * @param callback the result callback with two arguments
          *  error: boolean set to true if the request had an error
          *  content: the server answer with user keys list or error description if error is true.
          */
-        addUserKeyWithValidity: function(acls, validity, callback) {
+        addUserKeyWithValidity: function(acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, callback) {
             var indexObj = this;
             var aclsObject = new Object();
             aclsObject.acl = acls;
             aclsObject.validity = validity;
+            aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+            aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+            
             this.as._jsonRequest({ method: 'POST',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/keys',
                                    body: aclsObject,
