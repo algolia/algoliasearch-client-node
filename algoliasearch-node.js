@@ -80,7 +80,7 @@ AlgoliaSearch.prototype = {
         var postObj = {operation: "move", destination: dstIndexName};
         var indexObj = this;
         this._jsonRequest({ method: 'POST',
-                            url: '/1/indexes/' + encodeURIComponent(indexName) + "/operation",
+                            url: '/1/indexes/' + encodeURIComponent(srcIndexName) + "/operation",
                             body: postObj, 
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback))
@@ -99,7 +99,7 @@ AlgoliaSearch.prototype = {
         var postObj = {operation: "copy", destination: dstIndexName};
         var indexObj = this;
         this._jsonRequest({ method: 'POST',
-                            url: '/1/indexes/' + encodeURIComponent(indexName) + "/operation",
+                            url: '/1/indexes/' + encodeURIComponent(srcIndexName) + "/operation",
                             body: postObj, 
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback))
