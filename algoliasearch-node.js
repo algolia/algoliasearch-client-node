@@ -483,6 +483,32 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
 
         /*
+         * Partially Override the content of several objects
+         *
+         * @param objects contains an array of objects to update (each object must contains a objectID attribute)
+         * @param callback (optional) the result callback with two arguments:
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer that updateAt and taskID
+         */
+        partialUpdateObjects: function(objects, callback) {
+            var indexObj = this;
+            var postObj = {requests:[]};
+            for (var i = 0; i < objects.length; ++i) {
+                var request = { action: 'partialUpdateObject',
+                                objectID: encodeURIComponent(objects[i].objectID),
+                                body: objects[i] };
+                postObj.requests.push(request);
+            }
+            this.as._jsonRequest({ method: 'POST',
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/batch",
+                                   body: postObj,
+                                   callback: function(error, res, body) {
+                if (!_.isUndefined(callback))
+                    callback(error, body);
+            }});
+        },
+
+        /*
          * Override the content of object
          *
          * @param object contains the javascript object to save, the object must contains an objectID attribute
@@ -631,6 +657,35 @@ AlgoliaSearch.prototype.Index.prototype = {
             }});
         },
 
+        /*
+         * Browse all index content
+         *
+         * @param page Pagination parameter used to select the page to retrieve.
+         *             Page is zero-based and defaults to 0. Thus, to retrieve the 10th page you need to set page=9
+         * @param hitsPerPage: Pagination parameter used to select the number of hits per page. Defaults to 1000.
+         */
+        browse: function(page, callback, hitsPerPage, classToDerive) {
+            var indexObj = this;
+            var params = "?page=" + page;
+            if (!_.isUndefined(hitsPerPage)) {
+                params += "&hitsPerPage=" + hitsPerPage;
+            }
+            this.as._jsonRequest({ method: 'GET',
+                                   url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + "/browse" + params,
+                                   callback: function(error, res, body) {
+                if (!error && !_.isUndefined(classToDerive)) {
+                    for (var i in body.hits) {
+                        var obj = new classToDerive();
+                        _.extend(obj, body.hits[i]);
+                        body.hits[i] = obj;
+                    }
+                }
+                if (!_.isUndefined(callback)) {
+                    callback(error, body);
+                }
+            }});
+        },
+        
         /*
          * Wait the publication of a task on the server.
          * All server task are asynchronous and you can check with this method that the task is published.
