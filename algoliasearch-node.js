@@ -48,6 +48,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     if (Math.random() > 0.5)
         this.hosts.reverse();
     this.httpsAgent = _.isUndefined(httpsAgent) ? null : httpsAgent;
+    this.disableRateLimitForward();
 };
 
 AlgoliaSearch.prototype = {
