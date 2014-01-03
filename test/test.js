@@ -1,15 +1,16 @@
 var should = require('should'),
-    moquire = require('moquire'),
-    mockHttps = require('./mocks/https'),
-    Algolia = moquire('../algoliasearch-node', {
-      https: mockHttps
-    });
+    moquire = require('moquire');
 
 /*
  * https is replaced by a mock implementation.
  *
  */
-describe('Algolia', function () {
+describe('Mocked Algolia', function () {
+  var mockHttps = require('./mocks/https'),
+    Algolia = moquire('../algoliasearch-node', {
+      https: mockHttps
+    });
+
   // we don't have to use real hosts or API keys since we simulate the server
   var hosts = ['ApplicationID-1.algolia.io', 'ApplicationID-2.algolia.io', 'ApplicationID-3.algolia.io'],
       client = new Algolia('ApplicationID', 'API-Key', hosts);
@@ -79,4 +80,37 @@ describe('Algolia', function () {
       done();
     });
   });  
+});
+
+describe('Algolia', function () {
+  var Algolia = moquire('../algoliasearch-node');
+
+  it('should found environment variables', function(done) {
+    should.exist(process.env['ALGOLIA_APPLICATION_ID']);
+    should.exist(process.env['ALGOLIA_API_KEY']);
+    done();
+  });
+
+  var client = new Algolia(process.env['ALGOLIA_APPLICATION_ID'], process.env['ALGOLIA_API_KEY']);
+
+  it('should be able to clear/add/search', function (done) {
+    var index = client.initIndex('cities');
+    index.clearIndex(function(error, content) {
+      error.should.eql(false);
+      index.addObject({ name: 'San Francisco' }, function(error, content) {
+        error.should.eql(false);
+        should.exist(content['taskID']);
+        index.waitTask(content['taskID'], function(error, content) {
+          error.should.eql(false);
+          index.search('san f', function(error, content) {
+            error.should.eql(false);
+            content.should.have.property('hits').with.lengthOf(1);
+            content.hits[0].should.have.property('name', 'San Francisco');
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });
