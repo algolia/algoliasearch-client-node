@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "async": "*",
+    "grunt": "~0.4",
+    "grunt-contrib-jshint": "~0.1",
     "moquire": "~1.5.1",
     "mocha": "~1.12.0",
     "should": "~1.2.2"

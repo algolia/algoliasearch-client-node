@@ -32,7 +32,7 @@ describe('Mocked Algolia', function () {
     var index = client.initIndex('cities');
     index.search('loz anqel', function(error, content) {
       error.should.eql(false);
-      content.should.have.property('hits').with.lengthOf(1);
+      content.should.have.property('hits').length(1);
       content.hits[0].should.have.property('name', 'Los Angeles');
       content.hits[0].should.have.property('_highlightResult');
 
@@ -44,7 +44,7 @@ describe('Mocked Algolia', function () {
     // we make the first request fail, so that the driver will try a second server
     mockHttps.setResponders([{
       statusCode: 503,
-      json: { message: "Fail 1" }
+      json: { message: 'Fail 1' }
     }, {
       statusCode: 200,
       json: require('./responses/search1.json')
@@ -53,7 +53,7 @@ describe('Mocked Algolia', function () {
     var index = client.initIndex('cities');
     index.search('loz anqel', function(error, content) {
       error.should.eql(false);
-      content.should.have.property('hits').with.lengthOf(1);
+      content.should.have.property('hits').length(1);
       content.hits[0].should.have.property('name', 'Los Angeles');
       content.hits[0].should.have.property('_highlightResult');
 
@@ -65,13 +65,13 @@ describe('Mocked Algolia', function () {
     // we make the first request fail, so that the driver will try a second server
     mockHttps.setResponders([{
       statusCode: 503,
-      json: { message: "Fail 1" }
+      json: { message: 'Fail 1' }
     }, {
       statusCode: 503,
-      json: { message: "Fail 2" }
+      json: { message: 'Fail 2' }
     }, {
       statusCode: 503,
-      json: { message: "Fail 3" }
+      json: { message: 'Fail 3' }
     }]);
 
     var index = client.initIndex('cities');
@@ -79,19 +79,19 @@ describe('Mocked Algolia', function () {
       error.should.eql(true);
       done();
     });
-  });  
+  });
 });
 
 describe('Algolia', function () {
   var Algolia = moquire('../algoliasearch-node');
 
   it('should found environment variables', function(done) {
-    should.exist(process.env['ALGOLIA_APPLICATION_ID']);
-    should.exist(process.env['ALGOLIA_API_KEY']);
+    should.exist(process.env.ALGOLIA_APPLICATION_ID);
+    should.exist(process.env.ALGOLIA_API_KEY);
     done();
   });
 
-  var client = new Algolia(process.env['ALGOLIA_APPLICATION_ID'], process.env['ALGOLIA_API_KEY']);
+  var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
   it('should be able to clear/add/search', function (done) {
     var index = client.initIndex('cities');
@@ -99,12 +99,12 @@ describe('Algolia', function () {
       error.should.eql(false);
       index.addObject({ name: 'San Francisco' }, function(error, content) {
         error.should.eql(false);
-        should.exist(content['taskID']);
-        index.waitTask(content['taskID'], function(error, content) {
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
           error.should.eql(false);
           index.search('san f', function(error, content) {
             error.should.eql(false);
-            content.should.have.property('hits').with.lengthOf(1);
+            content.should.have.property('hits').length(1);
             content.hits[0].should.have.property('name', 'San Francisco');
             done();
           });
