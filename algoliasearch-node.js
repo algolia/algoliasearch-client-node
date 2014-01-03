@@ -769,7 +769,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          * This function deletes the index content. Settings and index specific API keys are kept untouched.
          *
          * @param callback (optional) the result callback with two arguments
-         *  success: boolean set to true if the request was successfull
+         *  error: boolean set to true if the request had an error
          *  content: the settings object or the error message if a failure occured
          */
         clearIndex: function(callback) {
