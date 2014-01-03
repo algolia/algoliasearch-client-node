@@ -15,6 +15,9 @@ Algolia’s Search API makes it easy to deliver a great search experience in you
 
 This Node.js client let you easily use the Algolia Search API from your backend.
 
+[![Build Status](https://travis-ci.org/algolia/algoliasearch-client-node.png?branch=master)](https://travis-ci.org/algolia/algoliasearch-client-node) [![NPM version](https://badge.fury.io/js/algolia-search.png)](http://badge.fury.io/js/algolia-search) [![Code Climate](https://codeclimate.com/github/algolia/algoliasearch-client-node.png)](https://codeclimate.com/github/algolia/algoliasearch-client-node)
+
+
 Table of Content
 -------------
 **Get started**
