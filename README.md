@@ -76,6 +76,7 @@ var client = new Algolia('YourApplicationID', 'YourAPIKey', keepaliveAgent);
 Note: if you are using keep-alive in a command-line tool, your program will exit after the keep-alive timeout is expired. You should use a connection without keep-alive in a command-line tool.
 
 **Initialization with a HTTP proxy**
+
 You must replace `localhost` and `8080`by your proxy host and port:
 ```javascript
 var tunnel = require('tunnel');
