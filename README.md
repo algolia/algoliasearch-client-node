@@ -77,6 +77,21 @@ var client = new Algolia('ApplicationID', 'API-Key', keepaliveAgent);
 ```
 Note: if you are using keep-alive in a command-line tool, your program will exit after the keep-alive timeout is expired. You should use a connection without keep-alive in a command-line tool.
 
+Example of Initialization with a HTTP proxy (you can replace `localhost` and `8080`by your proxy host and port):
+```
+var tunnel = require('tunnel');
+var Algolia = require('algolia-search');
+
+var tunnelingAgent = tunnel.httpsOverHttp({
+  rejectUnauthorized: false,
+  proxy: {
+    host: 'localhost',
+    port: 8080
+  }
+});
+var client = new Algolia('ApplicationID', 'API-Key', keepaliveAgent);
+```
+
 Quick Start
 -------------
 This quick start is a 30 seconds tutorial where you can discover how to index and search objects.
