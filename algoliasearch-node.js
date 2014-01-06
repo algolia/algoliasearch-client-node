@@ -505,7 +505,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(objectID) + params,
                                    callback: function(error, res, body) {
-                if (!_.isUndefined(ClassToDerive)) {
+            if (!_.isUndefined(ClassToDerive)) {
                     var obj = new ClassToDerive();
                     _.extend(obj, body);
                     body = obj;
@@ -572,7 +572,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  error: boolean set to true if the request had an error
          *  content: the server answer that updateAt and taskID
          */
-        saveObject: function(object, callback) {
+        saveObject: function(object, callback) {
             var indexObj = this;
             this.as._jsonRequest({ method: 'PUT',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/' + encodeURIComponent(object.objectID),
