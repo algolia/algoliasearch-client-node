@@ -54,13 +54,13 @@ npm install algolia-search
 ```
  2. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
-** Initialization without keep-alive **
+**Initialization without keep-alive**
 ```javascript
 var Algolia = require('algolia-search');
 var client = new Algolia('YourApplicationID', 'YourAPIKey');
 ```
 
-** Initialization with keep-alive enabled **
+**Initialization with keep-alive enabled**
 ```javascript
 var HttpsAgent = require('agentkeepalive').HttpsAgent;
 var Algolia = require('algolia-search');
@@ -75,7 +75,7 @@ var client = new Algolia('YourApplicationID', 'YourAPIKey', keepaliveAgent);
 ```
 Note: if you are using keep-alive in a command-line tool, your program will exit after the keep-alive timeout is expired. You should use a connection without keep-alive in a command-line tool.
 
-** Initialization with a HTTP proxy **
+**Initialization with a HTTP proxy**
 You must replace `localhost` and `8080`by your proxy host and port:
 ```javascript
 var tunnel = require('tunnel');
