@@ -89,7 +89,7 @@ var tunnelingAgent = tunnel.httpsOverHttp({
     port: 8080
   }
 });
-var client = new Algolia('ApplicationID', 'API-Key', keepaliveAgent);
+var client = new Algolia('ApplicationID', 'API-Key', tunnelingAgent);
 ```
 
 Quick Start
