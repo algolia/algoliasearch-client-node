@@ -343,12 +343,7 @@ AlgoliaSearch.prototype = {
         };
         impl();
     },
-
-    _jsonRequestByHost: function(opts) {
-        var body = null;
-        if (!_.isUndefined(opts.body)) {
-            body = JSON.stringify(opts.body);
-        }
+    _computeRequestOptions: function(opts, body) {
         var reqOpts = {
           method: opts.method,
           hostname: opts.hostname,
@@ -373,13 +368,22 @@ AlgoliaSearch.prototype = {
             reqOpts.hostname = n[0];
             reqOpts.port = n[1];
         }
-        if (body !== null) {
+        if (body != null) {
             reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
                                                           'Content-Length': new Buffer(body, 'utf8').length });
         }
         if (this.httpsAgent !== null) {
             reqOpts.agent = this.httpsAgent;
         }
+        return reqOpts;
+    },
+    _jsonRequestByHost: function(opts) {
+        var body = null;
+        if (!_.isUndefined(opts.body)) {
+            body = JSON.stringify(opts.body);
+        }
+        var reqOpts = this._computeRequestOptions(opts, body);
+
         var req = https.request(reqOpts, function(res) {
             var retry = res.statusCode === 0 || res.statusCode === 503;
             var success = (res.statusCode === 200 || res.statusCode === 201),
@@ -403,7 +407,7 @@ AlgoliaSearch.prototype = {
             opts.callback(true, true, null, { 'message': e} );
         });
 
-        if (body !== null) {
+        if (body != null) {
             req.write(body, encoding = 'utf8');
         }
         req.end();
