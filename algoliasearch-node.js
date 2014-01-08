@@ -478,7 +478,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
-            this._batch(objects, 'partialUpdateObject', callback);
+            this._batch(objects, 'updateObjects', callback);
         },
         /*
          * Delete an object from the index
@@ -789,7 +789,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 var request = { action: action,
                                 body: objects[i] };
                 if (!_.isUndefined(objects[i].objectID)) {
-                    request.objectID: objects[i].objectID,
+                    request.objectID = objects[i].objectID;
                 }
                 postObj.requests.push(request);
             }
