@@ -231,17 +231,9 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with user keys list or error description if error is true.
      */
     addUserKey: function(acls, callback) {
-        var indexObj = this;
         var aclsObject = {};
         aclsObject.acl = acls;
-        this._jsonRequest({ method: 'POST',
-                            url: '/1/keys',
-                            body: aclsObject,
-                            callback: function(error, res, body) {
-            if (!_.isUndefined(callback)) {
-                callback(error, body);
-            }
-        }});
+        this._addUserKey(aclsObject, callback);
     },
     /*
      * Add an existing user key
@@ -262,24 +254,12 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with user keys list or error description if error is true.
      */
     addUserKeyWithValidity: function(acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, callback) {
-        var indexObj = this;
         var aclsObject = {};
         aclsObject.acl = acls;
         aclsObject.validity = validity;
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
-        this.forwardAdminAPIKey = null;
-        this.forwardEndUserIP = null;
-        this.forwardLimitAPIKey = null;
-
-        this._jsonRequest({ method: 'POST',
-                            url: '/1/keys',
-                            body: aclsObject,
-                            callback: function(error, res, body) {
-            if (!_.isUndefined(callback)) {
-                callback(error, body);
-            }
-        }});
+        this._addUserKey(aclsObject, callback);
     },
     /*
      * Index class constructor.
@@ -312,6 +292,17 @@ AlgoliaSearch.prototype = {
         this.forwardLimitAPIKey = null;
     },
 
+    _addUserKey: function(aclsObject, callback) {
+        var indexObj = this;
+        this._jsonRequest({ method: 'POST',
+                            url: '/1/keys',
+                            body: aclsObject,
+                            callback: function(error, res, body) {
+            if (!_.isUndefined(callback)) {
+                callback(error, body);
+            }
+        }});
+    },
     /*
      * Wrapper that try all hosts to maximize the quality of service
      */
