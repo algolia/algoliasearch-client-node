@@ -407,13 +407,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         addObjects: function(objects, callback) {
-            var postObj = {requests:[]};
-            for (var i = 0; i < objects.length; ++i) {
-                var request = { action: 'addObject',
-                                body: objects[i] };
-                postObj.requests.push(request);
-            }
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, callback);
+            this._batch(objects, 'addObjects', callback);
         },
         /*
          * Get an object from this index
@@ -461,14 +455,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         partialUpdateObjects: function(objects, callback) {
-            var postObj = {requests:[]};
-            for (var i = 0; i < objects.length; ++i) {
-                var request = { action: 'partialUpdateObject',
-                                objectID: encodeURIComponent(objects[i].objectID),
-                                body: objects[i] };
-                postObj.requests.push(request);
-            }
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, callback);
+            this._batch(objects, 'partialUpdateObject', callback);
         },
 
         /*
@@ -491,14 +478,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
-            var postObj = {requests:[]};
-            for (var i = 0; i < objects.length; ++i) {
-                var request = { action: 'updateObject',
-                                objectID: encodeURIComponent(objects[i].objectID),
-                                body: objects[i] };
-                postObj.requests.push(request);
-            }
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, callback);
+            this._batch(objects, 'partialUpdateObject', callback);
         },
         /*
          * Delete an object from the index
@@ -803,7 +783,18 @@ AlgoliaSearch.prototype.Index.prototype = {
             }
             return params;
         },
-
+        _batch: function(objects, action, callback) {
+            var postObj = {requests:[]};
+            for (var i = 0; i < objects.length; ++i) {
+                var request = { action: action,
+                                body: objects[i] };
+                if (!_.isUndefined(objects[i].objectID)) {
+                    request.objectID: objects[i].objectID,
+                }
+                postObj.requests.push(request);
+            }
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, callback);
+        },
         // internal attributes
         as: null,
         indexName: null,
