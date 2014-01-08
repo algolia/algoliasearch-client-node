@@ -75,8 +75,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with index list or error description if error is true.
      */
     moveIndex: function(srcIndexName, dstIndexName, callback) {
-        var postObj = {operation: 'move', destination: dstIndexName};
-        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', postObj, callback);
+        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'move', destination: dstIndexName}, callback);
     },
     /**
      * Copy an existing index.
@@ -87,8 +86,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with index list or error description if error is true.
      */
     copyIndex: function(srcIndexName, dstIndexName, callback) {
-        var postObj = {operation: 'copy', destination: dstIndexName};
-        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', postObj, callback);
+        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'copy', destination: dstIndexName}, callback);
     },
     /**
      * Return last log entries.
@@ -175,7 +173,7 @@ AlgoliaSearch.prototype = {
         var aclsObject = {};
         aclsObject.acl = acls;
         this._request('POST', '/1/keys', aclsObjects, callback);
-    },    
+    },
     /*
      * Add an existing user key
      *
@@ -330,31 +328,34 @@ AlgoliaSearch.prototype = {
         }
         return reqOpts;
     },
+    _jsonRequestByHost_do: function(callback, res) {
+        var retry = res.statusCode === 0 || res.statusCode === 503;
+        var success = (res.statusCode === 200 || res.statusCode === 201),
+            chunks = new Buffers();
+
+        res.on('data', function(chunk) {
+            chunks.push(chunk);
+        });
+
+        res.on('end', function() {
+            var body = chunks.toString('utf8');
+
+            if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
+                body = JSON.parse(body);
+
+            }
+            callback(retry, !success, res, body);
+        });
+    },
     _jsonRequestByHost: function(opts) {
         var body = null;
         if (opts.body != null) {
             body = JSON.stringify(opts.body);
         }
         var reqOpts = this._computeRequestOptions(opts, body);
-
+        var obj = this;
         var req = https.request(reqOpts, function(res) {
-            var retry = res.statusCode === 0 || res.statusCode === 503;
-            var success = (res.statusCode === 200 || res.statusCode === 201),
-                chunks = new Buffers();
-
-            res.on('data', function(chunk) {
-                chunks.push(chunk);
-            });
-
-            res.on('end', function() {
-                var body = chunks.toString('utf8');
-
-                if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
-                    body = JSON.parse(body);
-
-                }
-                opts.callback(retry, !success, res, body);
-            });
+            obj._jsonRequestByHost_do(opts.callback, res);
         });
         req.on('error', function(e) {
             opts.callback(true, true, null, { 'message': e} );
