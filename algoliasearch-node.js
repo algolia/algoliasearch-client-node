@@ -280,9 +280,6 @@ AlgoliaSearch.prototype = {
                 return;
             }
             opts.callback = function(retry, error, res, body) {
-                if (error && !_.isUndefined(body)) {
-                    console.log('Error: ' + body.message);
-                }
                 if (retry && error && (idx + 1) < self.hosts.length) {
                     impl(idx + 1);
                 } else {
