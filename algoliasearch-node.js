@@ -334,13 +334,14 @@ AlgoliaSearch.prototype = {
             chunks.push(chunk);
         });
 
-        res.on('end', function() {
+        res.once('end', function() {
             var body = chunks.toString('utf8');
 
             if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
                 body = JSON.parse(body);
-
             }
+
+            res.removeAllListeners();
             callback(retry, !success, res, body);
         });
     },
@@ -354,7 +355,7 @@ AlgoliaSearch.prototype = {
         var req = https.request(reqOpts, function(res) {
             obj._jsonRequestByHost_do(opts.callback, res);
         });
-        req.on('error', function(e) {
+        req.once('error', function(e) {
             opts.callback(true, true, null, { 'message': e} );
         });
 
