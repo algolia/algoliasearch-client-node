@@ -122,4 +122,17 @@ describe('Algolia', function () {
     });
   });
 
+  it('should perform queries forwarding a rate-limited API Key', function (done) {
+    client.enableRateLimitForward(process.env.ALGOLIA_API_KEY, '127.0.0.1', process.env.ALGOLIA_API_KEY);
+    var index = client.initIndex(safe_index_name('cities'));
+    index.setSettings({}, function(error, content) { // ensure index is created
+      error.should.eql(false);
+      index.search('', function(error, content) {
+        error.should.eql(false);
+        done();
+      });
+      client.disableRateLimitForward();
+    });
+  });
+
 });
