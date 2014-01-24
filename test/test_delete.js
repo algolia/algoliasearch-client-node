@@ -32,11 +32,36 @@ describe('Algolia', function () {
             index.search('san f', function(error, content) {
               error.should.eql(false);
               content.should.have.property('hits').length(0);
+              index.addObject({ name: 'San Francisco', objectID: '42' });
               done();
-            });
+            }, null);
           });
         });
       });
     });
   });
+
+it('should be able to delete with error', function (done) {
+    var index = client.initIndex(safe_index_name('cities'));
+    index.clearIndex(function(error, content) {
+      index.saveObject({ name: 'San Francisco', objectID: '42' }, function(error, content) {
+        error.should.eql(false);
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.deleteObject(null, function(error, content) {
+            error.should.eql(true);
+            index.search('san f', function(error, content) {
+              error.should.eql(false);
+              content.should.have.property('hits').length(1);
+              content.hits[0].should.have.property('name').eql('San Francisco');
+              done();
+            }, { 'attributesToRetrieve' : 'name'});
+          });
+        });
+      });
+    });
+  });
+
+
 });

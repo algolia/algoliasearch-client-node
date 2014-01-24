@@ -18,7 +18,7 @@ describe('Algolia', function () {
 
   var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
-  it('should be able to add a security', function (done) {
+  it('should be able to add a security for client', function (done) {
     var key;
     var keys;
     client.listUserKeys(function(error, content) {
@@ -47,4 +47,36 @@ describe('Algolia', function () {
       });
     });
   });
+
+it('should be able to add a security for index', function (done) {
+    var key;
+    var keys;
+    var index = client.initIndex(safe_index_name('cities'));
+    index.listUserKeys(function(error, content) {
+      error.should.eql(false);
+      keys = content.keys.length;
+      index.addUserKey(['search'], function(error, content) {
+        error.should.eql(false);
+        key = content.key;
+        index.getUserKeyACL(key, function(error, content) {
+          error.should.eql(false);
+          content.should.have.property('acl').length(1);
+          content.acl[0].should.eql('search');
+          index.listUserKeys(function(error, content) {
+            error.should.eql(false);
+            content.should.have.property('keys').length(keys + 1);
+            index.deleteUserKey(key, function(error, content) {
+              error.should.eql(false);
+              index.listUserKeys(function(error, content) {
+                error.should.have.eql(false);
+                content.should.have.property('keys').length(keys);
+              done();
+              })
+            });
+          });
+        });
+      });
+    });
+  });
+
 });

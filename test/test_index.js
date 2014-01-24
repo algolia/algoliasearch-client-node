@@ -24,7 +24,7 @@ describe('Algolia', function () {
     index.clearIndex(function(error, content) {
       client.deleteIndex(safe_index_name('towns'), function(error, content) {
         setTimeout(function() {
-          index.addObject({ name: 'San Francisco' }, function(error, content) {
+          index.addObject({ name: 'San Francisco' }, 42, function(error, content) {
             error.should.eql(false);
             should.exist(content.taskID);
             index.waitTask(content.taskID, function(error, content) {
@@ -81,13 +81,13 @@ describe('Algolia', function () {
                 });
               });
             });
-          });
+          }, 42);
         }, 2000);
       });
     });
   });
 
-  it('should be able to partial update', function (done) {
+  it('should be able to browse', function (done) {
       var index = client.initIndex(safe_index_name('cities'));
       index.clearIndex(function(error, content) {
         index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
@@ -101,6 +101,25 @@ describe('Algolia', function () {
               content.hits[0].should.have.property('name', 'San Francisco');
               done();
           });
+        });
+      });
+    });
+  });
+
+  it('should be able to browse with args', function (done) {
+      var index = client.initIndex(safe_index_name('cities'));
+      index.clearIndex(function(error, content) {
+        index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
+            error.should.eql(false);
+            index.browse(0, function(error, content) {
+              error.should.eql(false);
+              content.should.have.property('hits').length(1);
+              content.hits[0].should.have.property('name', 'San Francisco');
+              done();
+          }, 1);
         });
       });
     });

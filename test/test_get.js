@@ -36,6 +36,24 @@ describe('Algolia', function () {
     });
   });
 
+  it('should be able to get with attr', function (done) {
+      var index = client.initIndex(safe_index_name('cities'));
+      index.clearIndex(function(error, content) {
+        index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
+            error.should.eql(false);
+            index.getObject("42", function(error, content) {
+              error.should.eql(false);
+              content.should.have.property('name', 'San Francisco');
+              done();
+          }, ['name', 'objectID']);
+        });
+      });
+    });
+  });
+
 
 
 
