@@ -8,8 +8,8 @@ describe('Algolia', function () {
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
     {  return name}
-    id = process.env.TRAVIS_JOB_NUMBER.split('.')[-1]
-    return "%s_travis-%s" % (name, id)
+    var id = process.env.TRAVIS_JOB_NUMBER.split('.').pop();
+    return name + "_travis-" + id;
   }
 
   it('should found environment variables', function(done) {

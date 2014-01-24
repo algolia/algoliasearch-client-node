@@ -85,6 +85,13 @@ describe('Mocked Algolia', function () {
 describe('Algolia', function () {
   var Algolia = require('../algoliasearch-node');
 
+  function safe_index_name(name) {
+    if (!process.env.TRAVIS)
+    {  return name}
+    var id = process.env.TRAVIS_JOB_NUMBER.split('.').pop();
+    return name + "_travis-" + id;
+  }
+
   it('should found environment variables', function(done) {
     should.exist(process.env.ALGOLIA_APPLICATION_ID);
     should.exist(process.env.ALGOLIA_API_KEY);
@@ -94,7 +101,7 @@ describe('Algolia', function () {
   var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
   it('should be able to set settings', function (done) {
-    var index = client.initIndex('cities');
+    var index = client.initIndex(safe_index_name('cities'));
     index.clearIndex(function(error, content) {
       index.addObject({ name: 'San Francisco' }, function(error, content) {
         error.should.eql(false);
