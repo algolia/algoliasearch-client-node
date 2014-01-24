@@ -1,10 +1,9 @@
 var should = require('should'),
-    sleep = require('sleep'),
     moquire = require('moquire');
 
 
 describe('Algolia', function () {
-  var Algolia = moquire('../algoliasearch-node');
+  var Algolia = require('../algoliasearch-node');
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
     {  return name}
@@ -24,27 +23,30 @@ describe('Algolia', function () {
     var index2 = client.initIndex(safe_index_name('towns'));
     index.clearIndex(function(error, content) {
       client.deleteIndex(safe_index_name('towns'), function(error, content) {
-        sleep.sleep(2)
-        index.addObject({ name: 'San Francisco' }, function(error, content) {
-          error.should.eql(false);
-          should.exist(content.taskID);
-          index.waitTask(content.taskID, function(error, content) {
+        setTimeout(function() {
+          index.addObject({ name: 'San Francisco' }, function(error, content) {
             error.should.eql(false);
-            client.copyIndex(safe_index_name('cities'), safe_index_name('towns'), function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              should.exist(content.taskID);
-              index.waitTask(content.taskID, function(error, content) {
+              client.copyIndex(safe_index_name('cities'), safe_index_name('towns'), function(error, content) {
+                if (error == true)
+                  {console.log(content.message)}
                 error.should.eql(false);
-                index2.search('san f', function(error, content) {
+                should.exist(content.taskID);
+                index.waitTask(content.taskID, function(error, content) {
                   error.should.eql(false);
-                  content.should.have.property('hits').length(1);
-                  content.hits[0].should.have.property('name', 'San Francisco');
-                  done();
+                  index2.search('san f', function(error, content) {
+                    error.should.eql(false);
+                    content.should.have.property('hits').length(1);
+                    content.hits[0].should.have.property('name', 'San Francisco');
+                    done();
+                  });
                 });
               });
             });
           });
-        });
+        }, 2000);
       });
     });
   });
@@ -54,30 +56,33 @@ describe('Algolia', function () {
     var index2 = client.initIndex(safe_index_name('towns'));
     index.clearIndex(function(error, content) {
       client.deleteIndex(safe_index_name('towns'), function(error, content) {
-        sleep.sleep(2)
-        index.addObject({ name: 'San Francisco' }, function(error, content) {
-          error.should.eql(false);
-          should.exist(content.taskID);
-          index.waitTask(content.taskID, function(error, content) {
+        setTimeout(function() {
+          index.addObject({ name: 'San Francisco' }, function(error, content) {
             error.should.eql(false);
-            client.moveIndex(safe_index_name('cities'), safe_index_name('towns'), function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              should.exist(content.taskID);
-              index.waitTask(content.taskID, function(error, content) {
+              client.moveIndex(safe_index_name('cities'), safe_index_name('towns'), function(error, content) {
+              if (error == true)
+                  {console.log(content.message)}
                 error.should.eql(false);
-                index2.search('san f', function(error, content) {
+                should.exist(content.taskID);
+                index.waitTask(content.taskID, function(error, content) {
                   error.should.eql(false);
-                  content.should.have.property('hits').length(1);
-                  content.hits[0].should.have.property('name', 'San Francisco');
-                  index.search('', function(error, content) {
-                    error.should.eql(true);
-                    done();
+                  index2.search('san f', function(error, content) {
+                    error.should.eql(false);
+                    content.should.have.property('hits').length(1);
+                    content.hits[0].should.have.property('name', 'San Francisco');
+                    index.search('', function(error, content) {
+                      error.should.eql(true);
+                      done();
+                    });
                   });
                 });
               });
             });
           });
-        });
+        }, 2000);
       });
     });
   });

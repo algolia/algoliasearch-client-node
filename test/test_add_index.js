@@ -1,10 +1,9 @@
 var should = require('should'),
-    sleep = require('sleep'),
     moquire = require('moquire');
 
 
 describe('Algolia', function () {
-  var Algolia = moquire('../algoliasearch-node');
+  var Algolia = require('../algoliasearch-node');
 
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
@@ -26,24 +25,25 @@ describe('Algolia', function () {
     var resAfter;
     var index = client.initIndex(safe_index_name('cities'));
     client.deleteIndex(safe_index_name('cities'), function(error, content) {
-      sleep.sleep(2)
-      client.listIndexes(function(error, content) {
-        error.should.eql(false);
-        res = content;
-        content.should.have.property('items');
-        index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+      setTimeout(function() {
+        client.listIndexes(function(error, content) {
           error.should.eql(false);
-          should.exist(content.taskID);
-          index.waitTask(content.taskID, function(error, content) {
+          res = content;
+          content.should.have.property('items');
+          index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
             error.should.eql(false);
-            client.listIndexes(function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              content.should.have.property('items').length(res.items.length + 1);
-              done();
+              client.listIndexes(function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('items').length(res.items.length + 1);
+                done();
+              });
             });
           });
         });
-      });
+      }, 2000);
     });
   });
 
@@ -57,17 +57,18 @@ describe('Algolia', function () {
         res = content;
         content.should.have.property('items');
         client.deleteIndex(safe_index_name('cities'), function(error, content) {
-          sleep.sleep(2)
-          error.should.eql(false);
-          should.exist(content.taskID);
-          index.waitTask(content.taskID, function(error, content) {
+          setTimeout(function() {
             error.should.eql(false);
-            client.listIndexes(function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              content.should.have.property('items').length(res.items.length - 1);
-              done();
+              client.listIndexes(function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('items').length(res.items.length - 1);
+                done();
+              });
             });
-          });
+          }, 2000);
         });
       });
     });

@@ -8,3 +8,5 @@ env:
   global:
   - secure: Vj8qFCa3YThsd20etRkmnOikgUuUuTqMNy1JAW7T5I0p6fNz68CbK8KkNDV6p+O5Di5LwxiyTf502sRW/K/MTquLU10+2kpfNY//EUpfzfGSm+G5MS2d+sbEYKgHi/731r/2pyyMS12WV0IPQlHfRqeRvIbq8E/dqRS6GzVNhj4=
   - secure: WfoHfakv+so08i3dWyleNMnGRfXhoPa0Rvkl0MHalDAGRdUHptMFz5j0oe8O0OC/OIczojHiUdMWIv6trwjj4GsmK65Y1GhI5/ln0CCBlBRM/5hl30F/3Gfcz5ISYyJz0rAfdvIoSpJrkxQ2dEo1jGurthfcXUt/b33cGp8xBFA=
+after_success:
+    cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js

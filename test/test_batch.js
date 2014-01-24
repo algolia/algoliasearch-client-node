@@ -3,7 +3,7 @@ var should = require('should'),
 
 
 describe('Algolia', function () {
-  var Algolia = moquire('../algoliasearch-node');
+  var Algolia = require('../algoliasearch-node');
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
     {  return name}

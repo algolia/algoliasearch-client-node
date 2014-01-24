@@ -83,7 +83,7 @@ describe('Mocked Algolia', function () {
 });
 
 describe('Algolia', function () {
-  var Algolia = moquire('../algoliasearch-node');
+  var Algolia = require('../algoliasearch-node');
 
   it('should found environment variables', function(done) {
     should.exist(process.env.ALGOLIA_APPLICATION_ID);
