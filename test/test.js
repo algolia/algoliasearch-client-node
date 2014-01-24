@@ -113,4 +113,67 @@ describe('Algolia', function () {
     });
   });
 
+  it('should be able to add forcing an objectID 1', function (done) {
+    var index = client.initIndex('cities');
+    index.clearIndex(function(error, content) {
+      error.should.eql(false);
+      var index = client.initIndex('cities');
+      index.addObject({ name: 'NYC1' }, function(error, content) {
+        error.should.eql(false);
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.getObject('id1', function(error, content) {
+            error.should.eql(false);
+            content.objectID.should.equal('id1');
+            content.name.should.equal('NYC1');
+            done();
+          });
+        });
+      }, 'id1');
+    });
+  });
+
+  it('should be able to add forcing an objectID 2', function (done) {
+    var index = client.initIndex('cities');
+    index.clearIndex(function(error, content) {
+      error.should.eql(false);
+      var index = client.initIndex('cities');
+      index.addObject({ name: 'NYC2' }, 'id2', function(error, content) {
+        error.should.eql(false);
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.getObject('id2', function(error, content) {
+            error.should.eql(false);
+            content.objectID.should.equal('id2');
+            content.name.should.equal('NYC2');
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should be able to add forcing an objectID 3', function (done) {
+    var index = client.initIndex('cities');
+    index.clearIndex(function(error, content) {
+      error.should.eql(false);
+      var index = client.initIndex('cities');
+      index.addObject({ name: 'NYC3' }, 'id3');
+      index.addObject({ name: 'NYC4' }, function() { });
+      index.addObject({ name: 'NYC5' }, function(error, content) {
+        error.should.eql(false);
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.search('nyc', function(error, content) {
+            error.should.eql(false);
+            content.should.have.property('hits').length(3);
+            done();
+          });
+        });
+      });
+    });
+  });
 });

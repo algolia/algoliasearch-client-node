@@ -382,13 +382,26 @@ AlgoliaSearch.prototype.Index.prototype = {
          * Add an object in this index
          *
          * @param content contains the javascript object to add inside the index
-         * @param callback (optional) the result callback with two arguments:
+         * @param callbackOrObjectID (optional) the result callback with two arguments:
          *  error: boolean set to true if the request had an error
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
-         * @param objectID (optional) an objectID you want to attribute to this object
+         * @param objectIDOrCallback (optional) an objectID you want to attribute to this object
          * (if the attribute already exist the old object will be overwrite)
          */
-        addObject: function(content, callback, objectID) {
+        addObject: function(content, callbackOrObjectID, objectIDOrCallback) {
+            var callback, objectID;
+            if (!_.isUndefined(callbackOrObjectID) && !_.isUndefined(objectIDOrCallback) && !_.isFunction(callbackOrObjectID) && _.isFunction(objectIDOrCallback)) {
+                callback = objectIDOrCallback;
+                objectID = callbackOrObjectID;
+            } else {
+                if (_.isFunction(callbackOrObjectID)) {
+                    callback = callbackOrObjectID;
+                    objectID = objectIDOrCallback;
+                } else {
+                    callback = objectIDOrCallback;
+                    objectID = callbackOrObjectID;
+                }
+            }
             if (_.isUndefined(objectID)) {
                 this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName), content, callback);
             } else {
@@ -428,7 +441,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     params += attributes[i];
                 }
             }
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, postObj, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, null, callback);
         },
 
         /*
