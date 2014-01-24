@@ -507,7 +507,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          */
         deleteObject: function(objectID, callback) {
             if (objectID === null || objectID.length === 0) {
-                callback(false, { message: 'empty objectID'});
+                callback(true, { message: 'empty objectID'});
                 return;
             }
             this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), null, callback);
