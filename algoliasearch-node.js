@@ -172,7 +172,7 @@ AlgoliaSearch.prototype = {
     addUserKey: function(acls, callback) {
         var aclsObject = {};
         aclsObject.acl = acls;
-        this._request('POST', '/1/keys', aclsObjects, callback);
+        this._request('POST', '/1/keys', aclsObject, callback);
     },
     /*
      * Add an existing user key
@@ -418,7 +418,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         addObjects: function(objects, callback) {
-            this._batch(objects, 'addObjects', callback);
+            this._batch(objects, 'addObject', callback);
         },
         /*
          * Get an object from this index
@@ -441,7 +441,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     params += attributes[i];
                 }
             }
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, null, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, objectID, callback);
         },
 
         /*
@@ -489,8 +489,14 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
-            this._batch(objects, 'updateObjects', callback);
+            this._batch(objects, 'updateObject', callback);
         },
+
+
+        batch: function(request, callback) {
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', request, callback);
+        },
+
         /*
          * Delete an object from the index
          *
