@@ -93,19 +93,19 @@ describe('Algolia', function () {
 
   var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
-  it('should be able to clear/add/search', function (done) {
+  it('should be able to set settings', function (done) {
     var index = client.initIndex('cities');
     index.clearIndex(function(error, content) {
-      error.should.eql(false);
       index.addObject({ name: 'San Francisco' }, function(error, content) {
         error.should.eql(false);
         should.exist(content.taskID);
         index.waitTask(content.taskID, function(error, content) {
           error.should.eql(false);
-          index.search('san f', function(error, content) {
+          index.setSettings({'attributesToRetrieve': ['name']});
+          index.getSettings(function(error, content) {
             error.should.eql(false);
-            content.should.have.property('hits').length(1);
-            content.hits[0].should.have.property('name', 'San Francisco');
+            content.should.have.property('attributesToRetrieve').length(1);
+            content.attributesToRetrieve[0].should.eql('name');
             done();
           });
         });
