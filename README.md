@@ -1,6 +1,8 @@
 Algolia Search API Client for Node.js
 ==================
 
+
+
 [Algolia Search](http://www.algolia.com) is a search API that provides hosted full-text, numerical and faceted search.
 Algolia’s Search API makes it easy to deliver a great search experience in your apps & websites providing:
 
@@ -13,22 +15,22 @@ Algolia’s Search API makes it easy to deliver a great search experience in you
  * 99.99% SLA
  * first-class data security
 
-This Node.js client let you easily use the Algolia Search API from your backend.
+This Node.js client let you easily use the Algolia Search API from your backend. It wraps [Algolia's REST API](http://www.algolia.com/doc/rest_api).
 
 [![Build Status](https://travis-ci.org/algolia/algoliasearch-client-node.png?branch=master)](https://travis-ci.org/algolia/algoliasearch-client-node) [![NPM version](https://badge.fury.io/js/algolia-search.png)](http://badge.fury.io/js/algolia-search) [![Code Climate](https://codeclimate.com/github/algolia/algoliasearch-client-node.png)](https://codeclimate.com/github/algolia/algoliasearch-client-node) [![Coverage Status](https://coveralls.io/repos/algolia/algoliasearch-client-node/badge.png?branch=master)](https://coveralls.io/r/algolia/algoliasearch-client-node?branch=master)
-
 
 Table of Content
 -------------
 **Get started**
 
-1. [Setup](#setup) 
+1. [Setup](#setup)
 1. [Quick Start](#quick-start)
-1. [General Principle](#general-principle)
+1. [General Principle](#general-principle)"])
 
 **Commands reference**
 
 1. [Search](#search)
+
 1. [Add a new object](#add-a-new-object-in-the-index)
 1. [Update an object](#update-an-existing-object-in-the-index)
 1. [Get an object](#get-an-object)
@@ -43,6 +45,8 @@ Table of Content
 1. [Copy or rename an index](#copy-or-rename-an-index)
 1. [Backup / Retrieve all index content](#backup--retrieve-all-index-content)
 1. [Logs](#logs)
+
+
 
 Setup
 -------------
@@ -94,6 +98,7 @@ var client = new Algolia('YourApplicationID', 'YourAPIKey', tunnelingAgent);
 
 Quick Start
 -------------
+
 This quick start is a 30 seconds tutorial where you can discover how to index and search objects.
 
 Without any prior-configuration, you can index [500 contacts](https://github.com/algolia/algoliasearch-client-node/blob/master/contacts.json) in the ```contacts``` index with the following code:
@@ -127,6 +132,7 @@ Settings can be customized to tune the search behavior. For example you can add 
 ```javascript
 index.setSettings({'customRanking': ['desc(followers)']});
 ```
+
 You can also configure the list of attributes you want to index by order of importance (first = most important):
 ```javascript
 index.setSettings({'attributesToIndex': ['lastname', 'firstname', 'company', 
@@ -143,6 +149,8 @@ index.search('jim', function(error, content) {
 });
 ```
 
+
+
 General Principle
 -------------
 
@@ -151,11 +159,14 @@ All API calls will return the result in a callback that takes two arguments:
  1. **error**: a boolean that is set to true when an error was found.
  2. **content**: the object containing the answer (if an error was found, you can retrieve the error message in `content.message`)
 
+
+
 Search
 -------------
-> **Opening note:** If you are building a web application, you may be more interested in using our [javascript client](https://github.com/algolia/algoliasearch-client-js) to send queries. It brings two benefits: (i) your users get a better response time by avoiding to go through your servers, and (ii) it will offload your servers of unnecessary tasks.
+ **Opening note:** If you are building a web application, you may be more interested in using our [javascript client](https://github.com/algolia/algoliasearch-client-js) to send queries. It brings two benefits: (i) your users get a better response time by avoiding to go through your servers, and (ii) it will offload your servers of unnecessary tasks.
 
-To perform a search, you just need to initialize the index and perform a call to the search function.<br/>
+To perform a search, you just need to initialize the index and perform a call to the search function.
+
 You can use the following optional arguments:
 
 ### Query parameters
@@ -254,6 +265,7 @@ The server response will look like:
 }
 ```
 
+
 Add a new object in the Index
 -------------
 
@@ -275,6 +287,7 @@ index.addObject({'firstname': 'Jimmie',
 ```
 
 Example with manual `objectID` assignement:
+
 ```javascript
 index.addObject({'firstname': 'Jimmie', 
                  'lastname': 'Barninger'}, function(error, content) {
@@ -282,10 +295,8 @@ index.addObject({'firstname': 'Jimmie',
 }, 'myID');
 ```
 
-
 Update an existing object in the Index
 -------------
-
 
 You have two options to update an existing object:
 
@@ -364,6 +375,7 @@ For example `"customRanking" => ["desc(population)", "asc(name)"]`
   * **prefixAll**: all query words are interpreted as prefixes,
   * **prefixLast**: only the last word is interpreted as a prefix (default behavior),
   * **prefixNone**: no query word is interpreted as a prefix. This option is not recommended.
+ * **slaves**: The list of indexes on which you want to replicate all write operations. In order to get response times in milliseconds, we pre-compute part of the ranking during indexing. If you want to use different ranking configurations depending of the use-case, you need to create one index per ranking configuration. This option enables you to perform write operations only on this index, and to automatically update slave indexes with the same operations.
 
 #### Default query parameters (can be overwrite by query)
  * **minWordSizefor1Typo**: (integer) the minimum number of characters to accept one typo (default = 3).
@@ -418,10 +430,11 @@ index.clearIndex(function(error, content) {
 });
 
 ```
+
 Wait indexing
 -------------
 
-All write operations return a `taskID` when the job is securely stored on our infrastructure but not when the job is published in your index. Even if it's extremely fast, you can easily ensure indexing is complete using the `waitTask` method on the `taskID` returned by a write operation.
+All write operations return a `taskID` when the job is securely stored on our infrastructure but not when the job is published in your index. Even if it's extremely fast, you can easily ensure indexing is complete using the `waitTask` method on the `taskID` returned by a write operation. 
 
 For example, to wait for indexing of a new object:
 ```javascript
@@ -433,15 +446,16 @@ index.addObject({'firstname': 'Jimmie',
 });
 ```
 
+
 If you want to ensure multiple objects have been indexed, you can only check the biggest taskID.
 
 Batch writes
 -------------
 
-You may want to perform multiple operations with a single API call to reduce latency.
-We expose two methods to perform batches:
- * `addObjects`: add an array of objects using automatic `objectID` assignement,
- * `saveObjects`: add or update an array of objects that contain an `objectID` attribute.
+You may want to perform multiple operations with one API call to reduce latency.
+We expose three methods to perform batch:
+ * `addObjects`: add an array of object using automatic `objectID` assignement
+ * `saveObjects`: add or update an array of object that contains an `objectID` attribute
  * `partialUpdateObjects`: partially update an array of objects that contain an `objectID` attribute (only specified attributes will be updated, other will remain unchanged)
 
 Example using automatic `objectID` assignement:
@@ -476,6 +490,7 @@ index.partialUpdateObjects([{"firstname": "Jimmie",
 });
 
 ```
+
 Security / User API Keys
 -------------
 
@@ -515,12 +530,14 @@ index.addUserKey(["search"], function(error, content) {
     console.log("Key:" + content['key']);
 });
 ```
+
 You can also create an API Key with advanced restrictions:
 
  * Add a validity period: the key will be valid only for a specific period of time (in seconds),
  * Specify the maximum number of API calls allowed from an IP address per hour. Each time an API call is performed with this key, a check is performed. If the IP at the origin of the call did more than this number of calls in the last hour, a 403 code is returned. Defaults to 0 (no rate limit). This parameter can be used to protect you from attempts at retrieving your entire content by massively querying the index.
 
   Note: If you are sending the query through your servers, you must use the `enableRateLimitForward("TheAdminAPIKey", "EndUserIP", "APIKeyWithRateLimit")` function to enable rate-limit.
+
  * Specify the maximum number of hits this API key can retrieve in one call. Defaults to 0 (unlimited). This parameter can be used to protect you from attempts at retrieving your entire content by massively querying the index.
 
 ```javascript
@@ -630,3 +647,8 @@ client.getLogs(function(error, content) {
   console.log(content);
 }, 0, 100);
 ```
+
+
+
+
+
