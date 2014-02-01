@@ -19,14 +19,14 @@ describe('Algolia', function () {
   var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
   it('should be able to get', function (done) {
-      var index = client.initIndex(safe_index_name('a\go\?à'));
+      var index = client.initIndex(safe_index_name('algol?à'));
       index.clearIndex(function(error, content) {
-        index.saveObject({ name: 'San Francisco', objectID: "a\go\?à" }, function(error, content) {
+        index.saveObject({ name: 'San Francisco', objectID: "a/go/?à" }, function(error, content) {
           error.should.eql(false);
           should.exist(content.taskID);
           index.waitTask(content.taskID, function(error, content) {
             error.should.eql(false);
-            index.getObject("a\go\?à", function(error, content) {
+            index.getObject("a/go/?à", function(error, content) {
               error.should.eql(false);
               content.should.have.property('name', 'San Francisco');
               done();
@@ -36,15 +36,51 @@ describe('Algolia', function () {
     });
   });
 
-  it('should be able to get with attr', function (done) {
-      var index = client.initIndex(safe_index_name('a\go\?à'));
+  it('should be able to get', function (done) {
+      var index = client.initIndex(safe_index_name('algol?à'));
       index.clearIndex(function(error, content) {
-        index.saveObject({ name: 'San Francisco', objectID: "a\go\?à" }, function(error, content) {
+        index.addObject({ name: 'San Diego', objectID: "a/go/?à" }, function(error, content) {
           error.should.eql(false);
           should.exist(content.taskID);
           index.waitTask(content.taskID, function(error, content) {
             error.should.eql(false);
-            index.getObject("a\go\?à", function(error, content) {
+            index.getObject("a/go/?à", function(error, content) {
+              error.should.eql(false);
+              content.should.have.property('name', 'San Diego');
+              done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should be able to get', function (done) {
+      var index = client.initIndex(safe_index_name('algol?à'));
+      index.clearIndex(function(error, content) {
+        index.partialUpdateObject({ name: 'San José', objectID: "a/go/?à" }, function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
+            error.should.eql(false);
+            index.getObject("a/go/?à", function(error, content) {
+              error.should.eql(false);
+              content.should.have.property('name', 'San José');
+              done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should be able to get with attr', function (done) {
+      var index = client.initIndex(safe_index_name('algol?à'));
+      index.clearIndex(function(error, content) {
+        index.saveObject({ name: 'San Francisco', objectID: "a/go/?à" }, function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
+            error.should.eql(false);
+            index.getObject("a/go/?à", function(error, content) {
               error.should.eql(false);
               content.should.have.property('name', 'San Francisco');
               done();
