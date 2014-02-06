@@ -51,7 +51,7 @@ describe('Algolia', function () {
 it('should be able to add a security for index', function (done) {
     var key;
     var keys;
-    var index = client.initIndex(safe_index_name('cities'));
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.listUserKeys(function(error, content) {
       error.should.eql(false);
       keys = content.keys.length;
@@ -70,6 +70,7 @@ it('should be able to add a security for index', function (done) {
               index.listUserKeys(function(error, content) {
                 error.should.have.eql(false);
                 content.should.have.property('keys').length(keys);
+                client.deleteIndex(safe_index_name('àlgol?à-node'));
               done();
               })
             });

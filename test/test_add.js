@@ -19,7 +19,7 @@ describe('Algolia', function () {
   var client = new Algolia(process.env.ALGOLIA_APPLICATION_ID, process.env.ALGOLIA_API_KEY);
 
   it('should be able to add', function (done) {
-    var index = client.initIndex(safe_index_name('cities'));
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.clearIndex(function(error, content) {
       index.addObject({ name: 'San Francisco' }, function(error, content) {
         error.should.eql(false);
@@ -30,6 +30,7 @@ describe('Algolia', function () {
             error.should.eql(false);
             content.should.have.property('hits').length(1);
             content.hits[0].should.have.property('name', 'San Francisco');
+            client.deleteIndex(safe_index_name('àlgol?à-node'));
             done();
           });
         });
@@ -38,9 +39,9 @@ describe('Algolia', function () {
   });
 
   it('should be able to save', function (done) {
-    var index = client.initIndex(safe_index_name('cities'));
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.clearIndex(function(error, content) {
-      index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+      index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
         error.should.eql(false);
         should.exist(content.taskID);
         index.waitTask(content.taskID, function(error, content) {
@@ -49,6 +50,7 @@ describe('Algolia', function () {
             error.should.eql(false);
             content.should.have.property('hits').length(1);
             content.hits[0].should.have.property('name', 'San Francisco');
+            client.deleteIndex(safe_index_name('àlgol?à-node'));
             done();
           });
         });
@@ -57,19 +59,20 @@ describe('Algolia', function () {
   });
 
   it('should be able to partial update', function (done) {
-      var index = client.initIndex(safe_index_name('cities'));
+      var index = client.initIndex(safe_index_name('àlgol?à-node'));
       index.clearIndex(function(error, content) {
-        index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+        index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
           error.should.eql(false);
           should.exist(content.taskID);
           index.waitTask(content.taskID, function(error, content) {
             error.should.eql(false);
-            index.partialUpdateObject({ name: 'Los Angeles', objectID: "42"}, function(error, content) {
+            index.partialUpdateObject({ name: 'Los Angeles', objectID: "à/go/?à"}, function(error, content) {
               error.should.eql(false);
               index.search('los a', function(error, content) {
                 error.should.eql(false);
                 content.should.have.property('hits').length(1);
                 content.hits[0].should.have.property('name', 'Los Angeles');
+                client.deleteIndex(safe_index_name('àlgol?à-node'));
                 done();
             });
           });

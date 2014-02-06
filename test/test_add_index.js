@@ -23,14 +23,14 @@ describe('Algolia', function () {
   it('should be able to add index', function (done) {
     var res;
     var resAfter;
-    var index = client.initIndex(safe_index_name('cities'));
-    client.deleteIndex(safe_index_name('cities'), function(error, content) {
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
+    client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
       setTimeout(function() {
         client.listIndexes(function(error, content) {
           error.should.eql(false);
           res = content;
           content.should.have.property('items');
-          index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+          index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
             error.should.eql(false);
             should.exist(content.taskID);
             index.waitTask(content.taskID, function(error, content) {
@@ -38,6 +38,7 @@ describe('Algolia', function () {
               client.listIndexes(function(error, content) {
                 error.should.eql(false);
                 content.should.have.property('items').length(res.items.length + 1);
+                client.deleteIndex(safe_index_name('àlgol?à-node'));
                 done();
               });
             });
@@ -50,25 +51,23 @@ describe('Algolia', function () {
   it('should be able to delete index', function (done) {
     var res;
     var resAfter;
-    var index = client.initIndex(safe_index_name('cities'));
-    index.saveObject({ name: 'San Francisco', objectID: "42" }, function(error, content) {
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
+    index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
       client.listIndexes(function(error, content) {
         error.should.eql(false);
         res = content;
         content.should.have.property('items');
-        client.deleteIndex(safe_index_name('cities'), function(error, content) {
-          setTimeout(function() {
+        client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
             error.should.eql(false);
-            should.exist(content.taskID);
-            index.waitTask(content.taskID, function(error, content) {
+            client.listIndexes(function(error, content) {
               error.should.eql(false);
-              client.listIndexes(function(error, content) {
-                error.should.eql(false);
-                content.should.have.property('items').length(res.items.length - 1);
-                done();
-              });
+              content.should.have.property('items').length(res.items.length - 1);
+              done();
             });
-          }, 2000);
+          });
         });
       });
     });
