@@ -78,6 +78,32 @@ describe('Algolia', function () {
     });
   });
 
+it('should be able to deletes', function (done) {
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
+    index.clearIndex(function(error, content) {
+      index.addObjects([{ "name": 'San Francisco', "objectID": "à/go/?à"}, { "name": 'San Diego', "objectID": "à/go/?à2"}], function(error, content) {
+        error.should.eql(false);
+        should.exist(content.taskID);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.deleteObjects(["à/go/?à", "à/go/?à2"], function(error, content) {
+            error.should.eql(false);
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
+              error.should.eql(false);
+              index.search('san', function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('hits').length(0);
+                client.deleteIndex(safe_index_name('àlgol?à-node'));
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
 it('should be able to custom batch', function (done) {
       var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.clearIndex(function(error, content) {

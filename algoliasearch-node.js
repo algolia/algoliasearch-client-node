@@ -513,6 +513,21 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), null, callback);
         },
         /*
+         * Delete several objects
+         *
+         * @param objects contains an array of objectID to delete
+         * @param callback (optional) the result callback with two arguments:
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer that updateAt and taskID
+         */
+        deleteObjects: function(objects, callback) {
+            var objectIDs = [];
+            objects.forEach(function(value) {
+                objectIDs.push({ 'objectID' : value });
+            });
+            this._batch(objectIDs, 'deleteObject', callback);
+        },
+        /*
          * Search inside the index
          *
          * @param query the full text query
