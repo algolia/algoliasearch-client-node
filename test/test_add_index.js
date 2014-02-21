@@ -12,6 +12,14 @@ describe('Algolia', function () {
     return name + "_travis-" + id;
   }
 
+  function include(tab, attrName, value) {
+    var res = false;
+    tab.forEach(function(elt) {
+                res = res || (elt[attrName] == value);
+            });
+    return res;
+  }
+
   it('should found environment variables', function(done) {
     should.exist(process.env.ALGOLIA_APPLICATION_ID);
     should.exist(process.env.ALGOLIA_API_KEY);
@@ -30,6 +38,7 @@ describe('Algolia', function () {
           error.should.eql(false);
           res = content;
           content.should.have.property('items');
+          include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(false);
           index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
             error.should.eql(false);
             should.exist(content.taskID);
@@ -37,7 +46,7 @@ describe('Algolia', function () {
               error.should.eql(false);
               client.listIndexes(function(error, content) {
                 error.should.eql(false);
-                content.should.have.property('items').length(res.items.length + 1);
+                include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(true);
                 client.deleteIndex(safe_index_name('àlgol?à-node'));
                 done();
               });
@@ -53,19 +62,24 @@ describe('Algolia', function () {
     var resAfter;
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
-      client.listIndexes(function(error, content) {
-        error.should.eql(false);
-        res = content;
-        content.should.have.property('items');
-        client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
+      should.exist(content.taskID);
+      index.waitTask(content.taskID, function(error, content) {
+        client.listIndexes(function(error, content) {
           error.should.eql(false);
-          should.exist(content.taskID);
-          index.waitTask(content.taskID, function(error, content) {
+          res = content;
+          content.should.have.property('items');
+          include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(true);
+          client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
             error.should.eql(false);
-            client.listIndexes(function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              content.should.have.property('items').length(res.items.length - 1);
-              done();
+              client.listIndexes(function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('items');
+                include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(false);
+                done();
+              });
             });
           });
         });
