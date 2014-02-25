@@ -23,6 +23,7 @@
 var _ = require('underscore');
 var https = require('https');
 var Buffers = require('buffers');
+var crypto = require('crypto');
 
 /**
  * Algolia Search library initialization
@@ -155,7 +156,7 @@ AlgoliaSearch.prototype = {
         this._request('DELETE', '/1/keys/' + key, null, callback);
     },
     /*
-     * Add an existing user key
+     * Add a user key
      *
      * @param acls the list of ACL for this key. Defined by an array of strings that
      * can contains the following values:
@@ -175,7 +176,7 @@ AlgoliaSearch.prototype = {
         this._request('POST', '/1/keys', aclsObject, callback);
     },
     /*
-     * Add an existing user key
+     * Add a user key
      *
      * @param acls the list of ACL for this key. Defined by an array of strings that
      * can contains the following values:
@@ -199,6 +200,62 @@ AlgoliaSearch.prototype = {
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
         this._request('POST', '/1/keys', aclsObjects, callback);
+    },
+    /*
+     * Add a user key
+     *
+     * @param acls the list of ACL for this key. Defined by an array of strings that
+     * can contains the following values:
+     *   - search: allow to search (https and http)
+     *   - addObject: allows to add/update an object in the index (https only)
+     *   - deleteObject : allows to delete an existing object (https only)
+     *   - deleteIndex : allows to delete index content (https only)
+     *   - settings : allows to get index settings (https only)
+     *   - editSettings : allows to change index settings (https only)
+     * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+     * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour. (0 means no rate limit).
+     * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. (0 means unlimited)
+     * @param indexes the list of targeted indexes
+     * @param callback the result callback with two arguments
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
+     */
+    addUserKeyWithValidityAndIndexes: function(acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, indexes, callback) {
+        var aclsObject = {};
+        aclsObject.acl = acls;
+        aclsObject.validity = validity;
+        aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+        aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+        aclsObject.indexes = indexes;
+        this._request('POST', '/1/keys', aclsObjects, callback);
+    },
+    /*
+     * Generate a secured and public API Key from a list of tagFilters and an
+     * optional user token identifying the current user
+     *
+     * @param privateApiKey your private API Key
+     * @param tagFilters the list of tags applied to the query (used as security)
+     * @param userToken an optional token identifying the current user
+     */
+    generateSecuredApiKey: function(privateApiKey, tagFilters, userToken) {
+        if (Object.prototype.toString.call(tagFilters) === '[object Array]') {
+            var strTags = [];
+            for (var i = 0; i < tagFilters.length; ++i) {
+                if (Object.prototype.toString.call(tagFilters[i]) === '[object Array]') {
+                    var oredTags = [];
+                    for (var j = 0; j < tagFilters[i].length; ++j) {
+                        oredTags.push(tagFilters[i][j]);
+                    }
+                    strTags.push('(' + oredTags.join(',') + ')');
+                } else {
+                    strTags.push(tagFilters[i]);
+                }
+            }
+            tagFilters = strTags.join(',');
+        }
+        var shasum = crypto.createHash('sha256');
+        shasum.update(privateApiKey + tagFilters + (userToken || ''));
+        return shasum.digest('hex');
     },
     /*
      * Index class constructor.

@@ -72,12 +72,26 @@ it('should be able to add a security for index', function (done) {
                 content.should.have.property('keys').length(keys);
                 client.deleteIndex(safe_index_name('àlgol?à-node'));
               done();
-              })
+              });
             });
           });
         });
       });
     });
+  });
+
+  it('should generate secured api keys', function(done) {
+    var crypto = require('crypto');
+    '143fec7bef6f16f6aa127a4949948a966816fa154e67a811e516c2549dbe2a8b'.should.eql(crypto.createHash('sha256').update('my_api_key(public,user1)').digest('hex'));
+    key = client.generateSecuredApiKey('my_api_key', '(public,user1)');
+    key.should.eql(crypto.createHash('sha256').update('my_api_key(public,user1)').digest('hex'));
+    key = client.generateSecuredApiKey('my_api_key', '(public,user1)', 42);
+    key.should.eql(crypto.createHash('sha256').update('my_api_key(public,user1)42').digest('hex'));
+    key = client.generateSecuredApiKey('my_api_key', ['public']);
+    key.should.eql(crypto.createHash('sha256').update('my_api_keypublic').digest('hex'));
+    key = client.generateSecuredApiKey('my_api_key', ['public', ['premium','vip']]);
+    key.should.eql(crypto.createHash('sha256').update('my_api_keypublic,(premium,vip)').digest('hex'));
+    done();
   });
 
 });
