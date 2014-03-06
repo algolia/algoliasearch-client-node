@@ -47,8 +47,9 @@ describe('Algolia', function () {
               client.listIndexes(function(error, content) {
                 error.should.eql(false);
                 include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(true);
-                client.deleteIndex(safe_index_name('àlgol?à-node'));
-                done();
+                client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
+                  done();
+                });
               });
             });
           });
@@ -63,24 +64,27 @@ describe('Algolia', function () {
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
       should.exist(content.taskID);
+      error.should.eql(false);
       index.waitTask(content.taskID, function(error, content) {
+        task = content;
+        error.should.eql(false);
         client.listIndexes(function(error, content) {
           error.should.eql(false);
           res = content;
           content.should.have.property('items');
-          include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(true);
+          include(res.items, "name", safe_index_name('àlgol?à-node')).should.eql(true);
           client.deleteIndex(safe_index_name('àlgol?à-node'), function(error, content) {
             error.should.eql(false);
             should.exist(content.taskID);
             index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
               client.listIndexes(function(error, content) {
-                error.should.eql(false);
-                content.should.have.property('items');
-                include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(false);
-                done();
-              });
-            });
+              error.should.eql(false);
+              content.should.have.property('items');
+              include(content.items, "name", safe_index_name('àlgol?à-node')).should.eql(false);
+              done();
+             });
+           });
           });
         });
       });
