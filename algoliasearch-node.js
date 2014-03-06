@@ -107,6 +107,29 @@ AlgoliaSearch.prototype = {
         this._request('GET', '/1/logs?offset=' + offset + '&length=' + length, null, callback);
     },
     /*
+     * This method allows to query multiple indexes with one API call
+     */
+    multipleQueries: function(queries, indexNameKey, callback) {
+        var body = {requests:[]};
+        for (var i = 0; i < queries.length; ++i) {
+            var indexName = queries[i][indexNameKey];
+            delete (queries[i][indexNameKey]);
+            query = ""
+            for (var key in queries[i]) {
+                if (query != "") {
+                    query += "&";
+                }
+                if (key != null && queries[i].hasOwnProperty(key)) {
+                    query += key + '=' + encodeURIComponent(Object.prototype.toString.call(queries[i][key]) === '[object Array]' ? JSON.stringify(queries[i][key]) : queries[i][key]);
+                }
+            }
+            var request = { indexName: indexName,
+                            params: query };            
+            body.requests.push(request);
+        }
+        this._request('POST', '/1/indexes/*/queries', body, callback);
+    },
+    /*
      * List all existing indexes
      *
      * @param callback the result callback with two arguments
