@@ -52,26 +52,32 @@ it('should be able to add a security for index', function (done) {
     var key;
     var keys;
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
-    index.listUserKeys(function(error, content) {
+    index.saveObject({ name: 'San Francisco', objectID: "à/go/?à" }, function(error, content) {
+      should.exist(content.taskID);
       error.should.eql(false);
-      keys = content.keys.length;
-      index.addUserKey(['search'], function(error, content) {
-        error.should.eql(false);
-        key = content.key;
-        index.getUserKeyACL(key, function(error, content) {
+      index.waitTask(content.taskID, function(error, content) {
+        index.listUserKeys(function(error, content) {
           error.should.eql(false);
-          content.should.have.property('acl').length(1);
-          content.acl[0].should.eql('search');
-          index.listUserKeys(function(error, content) {
+          keys = content.keys.length;
+          index.addUserKey(['search'], function(error, content) {
             error.should.eql(false);
-            content.should.have.property('keys').length(keys + 1);
-            index.deleteUserKey(key, function(error, content) {
+            key = content.key;
+            index.getUserKeyACL(key, function(error, content) {
               error.should.eql(false);
+              content.should.have.property('acl').length(1);
+              content.acl[0].should.eql('search');
               index.listUserKeys(function(error, content) {
-                error.should.have.eql(false);
-                content.should.have.property('keys').length(keys);
-                client.deleteIndex(safe_index_name('àlgol?à-node'));
-              done();
+                error.should.eql(false);
+                content.should.have.property('keys').length(keys + 1);
+                index.deleteUserKey(key, function(error, content) {
+                  error.should.eql(false);
+                  index.listUserKeys(function(error, content) {
+                    error.should.have.eql(false);
+                    content.should.have.property('keys').length(keys);
+                    client.deleteIndex(safe_index_name('àlgol?à-node'));
+                  done();
+                  });
+                });
               });
             });
           });
