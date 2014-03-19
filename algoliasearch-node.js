@@ -276,9 +276,7 @@ AlgoliaSearch.prototype = {
             }
             tagFilters = strTags.join(',');
         }
-        var shasum = crypto.createHash('sha256');
-        shasum.update(privateApiKey + tagFilters + (userToken || ''));
-        return shasum.digest('hex');
+        return crypto.createHmac("sha256", privateApiKey).update(tagFilters + (userToken || '')).digest('hex');
     },
     /*
      * Index class constructor.
