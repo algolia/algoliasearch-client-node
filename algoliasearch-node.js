@@ -407,7 +407,7 @@ AlgoliaSearch.prototype = {
         return reqOpts;
     },
     _jsonRequestByHost_do: function(callback, res) {
-        var retry = res.statusCode === 0 || res.statusCode === 503;
+        var retry = !(res.statusCode === 400 || res.statusCode === 403 || res.statusCode === 404);
         var success = (res.statusCode === 200 || res.statusCode === 201),
             chunks = new Buffers();
 
