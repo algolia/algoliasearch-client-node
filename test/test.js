@@ -126,7 +126,7 @@ describe('Algolia', function () {
     client.enableRateLimitForward(process.env.ALGOLIA_API_KEY, '127.0.0.1', process.env.ALGOLIA_API_KEY);
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.setSettings({}, function(error, content) { // ensure index is created
-      error.should.eql(false);
+      error.should.eql(false, content);
       index.search('', function(error, content) {
         error.should.eql(false);
         client.deleteIndex(safe_index_name('àlgol?à-node'));
