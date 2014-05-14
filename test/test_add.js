@@ -68,12 +68,15 @@ describe('Algolia', function () {
             error.should.eql(false);
             index.partialUpdateObject({ name: 'Los Angeles', objectID: "à/go/?à"}, function(error, content) {
               error.should.eql(false);
-              index.search('los a', function(error, content) {
-                error.should.eql(false);
-                content.should.have.property('hits').length(1);
-                content.hits[0].should.have.property('name', 'Los Angeles');
-                client.deleteIndex(safe_index_name('àlgol?à-node'));
-                done();
+                index.waitTask(content.taskID, function(error, content) {
+                  error.should.eql(false);
+                  index.search('los a', function(error, content) {
+                    error.should.eql(false);
+                    content.should.have.property('hits').length(1);
+                    content.hits[0].should.have.property('name', 'Los Angeles');
+                    client.deleteIndex(safe_index_name('àlgol?à-node'));
+                    done();
+              });
             });
           });
         });
