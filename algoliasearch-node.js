@@ -587,7 +587,8 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
          */
         deleteObject: function(objectID, callback) {
-            if (objectID === null || objectID.length === 0) {
+            objectID = '' + objectID;
+            if (!objectID) {
                 callback(true, { message: 'empty objectID'});
                 return;
             }
