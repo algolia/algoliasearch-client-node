@@ -127,10 +127,13 @@ describe('Algolia', function () {
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.setSettings({}, function(error, content) { // ensure index is created
       error.should.eql(false, content);
-      index.search('', function(error, content) {
+      index.waitTask(content.taskID, function(error, content) {
         error.should.eql(false);
-        client.deleteIndex(safe_index_name('àlgol?à-node'));
-        done();
+        index.search('', function(error, content) {
+          error.should.eql(false);
+          client.deleteIndex(safe_index_name('àlgol?à-node'));
+          done();
+        });
       });
       client.disableRateLimitForward();
     });
