@@ -2,7 +2,7 @@ var should = require('should'),
     moquire = require('moquire');
 
 
-describe('Algolia', function () {
+describe('Algolia delete', function () {
   var Algolia = require('../algoliasearch-node');
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
@@ -29,11 +29,15 @@ describe('Algolia', function () {
           error.should.eql(false);
           index.deleteObject('à/go/?à', function(error, content) {
             error.should.eql(false);
-            index.search('san f', function(error, content) {
+            should.exist(content.taskID);
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              content.should.have.property('hits').length(0);;
-              done();
-            }, null);
+              index.search('san f', function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('hits').length(0);
+                done();
+              }, null);
+            });
           });
         });
       });
