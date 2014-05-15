@@ -30,7 +30,8 @@
     "mocha-istanbul": "~0.2.0",
     "coveralls": "~2.6.1",
     "mocha-lcov-reporter": "0.0.1",
-    "should": "~1.2.2"
+    "should": "~1.2.2",
+    "sleep": "~1.1.4"
   },
   "main": "./algoliasearch-node.js",
   "scripts": {
