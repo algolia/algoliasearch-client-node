@@ -777,12 +777,16 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/task/' + taskID,
                                    callback: function(error, res, body) {
-                if (!error && body.status === 'published') {
-                    callback(false, body);
-                } else if (!error && body.pendingTask) {
-                    return indexObj.waitTask(taskID, callback);
-                } else {
+                if (error) {
                     callback(true, body);
+                } else {
+                    if (body.status === 'published') {
+                        callback(false, body);
+                    } else {
+                        setTimeout(function() {
+                            indexObj.waitTask(taskID, callback);
+                        }, 100);
+                    }
                 }
             }});
         },
