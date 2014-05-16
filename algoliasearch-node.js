@@ -947,6 +947,104 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, callback);
         },
 
+        /*
+         * Perform a search with disjunctive facets generating as many queries as number of disjunctive facets
+         *
+         * @param query the query
+         * @param disjunctiveFacets the array of disjunctive facets
+         * @param params a hash representing the regular query parameters
+         * @param refinements a hash ("string" -> ["array", "of", "refined", "values"]) representing the current refinements
+         *                    ex: { "my_facet1" => ["my_value1", ["my_value2"], "my_disjunctive_facet1" => ["my_value1", "my_value2"] }
+         * @param callback the result callback with two arguments
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
+         */
+        searchDisjunctiveFaceting: function(query, disjunctiveFacets, params, refinements, callback) {
+            // extract disjunctive facets & associated refinements
+            var disjunctiveRefinements = [];
+            for (var r in refinements) {
+                if (disjunctiveFacets.indexOf(r) > -1) {
+                    disjunctiveRefinements.push(r);
+                }
+            }
+
+            // build queries
+            var queries = [];
+            //// hits + regular facets query
+            var filters = [];
+            for (var k in refinements) {
+                var r2 = _.map(refinements[k], function(v) { return k + ':' + v; });
+                if (disjunctiveRefinements.indexOf(k) > -1) {
+                    // disjucntive refinements are ORed
+                    filters.push(r2);
+                } else {
+                    // regular refinements are ANDed
+                    filters = filters.concat(r2);
+                }
+            }
+            queries.push(_.extend({}, params, { indexName: this.indexName, query: query, facetFilters: filters }));
+
+            //// one query per disjunctive facet (use all refinements but the current one + hitsPerPage=1 + single facet)
+            for (var di = 0; di < disjunctiveFacets.length; ++di) {
+                var filtersD = [];
+                for (var k2 in refinements) {
+                    if (k2 != disjunctiveFacets[di]) {
+                        var rD = _.map(refinements[k2], function(v) { return k2 + ':' + v; });
+                        if (disjunctiveRefinements.indexOf(k2) > -1) {
+                            // disjucntive refinements are ORed
+                            filtersD.push(rD);
+                        } else {
+                            // regular refinements are ANDed
+                            filtersD = filtersD.concat(rD);
+                        }
+                    }
+                }
+                queries.push(_.extend({}, params, {
+                    indexName: this.indexName,
+                    query: query,
+                    page: 0,
+                    hitsPerPage: 1,
+                    facets: disjunctiveFacets[di],
+                    facetFilters: filtersD
+                }));
+            }
+
+            // aggregate answers
+            this.as.multipleQueries(queries, 'indexName', function(error, content) {
+                if (error) {
+                    if (!_.isUndefined(callback)) {
+                        callback(error, content);
+                    }
+                    return;
+                }
+                //// first answer stores the hits + regular facets
+                var aggregatedAnswer = content.results[0];
+                ////others store the disjunctive facets
+                aggregatedAnswer.disjunctiveFacets = {};
+                for (var i = 0; i < content.results.length; ++i) {
+                    if (i === 0) {
+                        continue;
+                    }
+                    for (var facet in content.results[i].facets) {
+                        //// add the facet to the disjunctive facet hash
+                        aggregatedAnswer.disjunctiveFacets[facet] = content.results[i].facets[facet];
+                        //// concatenate missing refinements
+                        if (disjunctiveRefinements[facet]) {
+                            for (var j = 0; k < disjunctiveRefinements[facet].length; ++j) {
+                                var r = disjunctiveRefinements[facet][j];
+                                if (_.isUndefined(aggregatedAnswer.disjunctiveFacets[facet][r])) {
+                                    aggregatedAnswer.disjunctiveFacets[facet][r] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!_.isUndefined(callback)) {
+                    callback(false, aggregatedAnswer);
+                }
+            });
+        },
+
         ///
         /// Internal methods only after this line
         ///
