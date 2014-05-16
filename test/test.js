@@ -130,7 +130,7 @@ describe('Algolia', function () {
       index.waitTask(content.taskID, function(error, content) {
         error.should.eql(false);
         index.search('', function(error, content) {
-          error.should.eql(false);
+          error.should.eql(false, content);
           client.deleteIndex(safe_index_name('àlgol?à-node'));
           done();
         });
