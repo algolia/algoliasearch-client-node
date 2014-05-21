@@ -21,13 +21,10 @@
  * THE SOFTWARE.
  */
 var _ = require('underscore');
+var crypto = require('crypto');
 if (typeof Parse === 'undefined') {
   var https = require('https');
   var Buffers = require('buffers');
-  var crypto = require('crypto');
-} else {
-  var Buffers = require('cloud/buffers');
-  var crypto = require('crypto');
 }
 
 /**
@@ -394,11 +391,9 @@ AlgoliaSearch.prototype = {
             'User-Agent': 'Algolia for node.js 1.5.5'
           },
           success: function(res) {
-            console.log("sucess")
             obj._parseJsonRequestByHost_do(opts.callback, res);
           },
           error: function(res) {
-            console.log("sucess")
             opts.callback(true, true, null, { 'message': res.text} );
           }
         };
