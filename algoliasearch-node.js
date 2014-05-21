@@ -21,9 +21,14 @@
  * THE SOFTWARE.
  */
 var _ = require('underscore');
-var https = require('https');
-var Buffers = require('buffers');
-var crypto = require('crypto');
+if (typeof Parse === 'undefined') {
+  var https = require('https');
+  var Buffers = require('buffers');
+  var crypto = require('crypto');
+} else {
+  var Buffers = require('cloud/buffers');
+  var crypto = require('crypto');
+}
 
 /**
  * Algolia Search library initialization
@@ -127,7 +132,7 @@ AlgoliaSearch.prototype = {
                 }
             }
             var request = { indexName: indexName,
-                            params: query };            
+                            params: query };
             body.requests.push(request);
         }
         this._request('POST', '/1/indexes/*/queries', body, callback);
@@ -343,7 +348,7 @@ AlgoliaSearch.prototype = {
     },
 
 
-                   
+
     /*
      * Wrapper that try all hosts to maximize the quality of service
      */
@@ -368,9 +373,47 @@ AlgoliaSearch.prototype = {
                 }
             };
             opts.hostname = self.hosts[idx];
-            self._jsonRequestByHost(opts);
+            if (typeof Parse !== 'undefined') {
+                self._parseJsonRequestByHost(opts);
+            } else {
+                self._jsonRequestByHost(opts);
+            }
         };
         impl();
+    },
+    _parseComputeRequestOptions: function(opts, body) {
+        var obj = this;
+        var reqOpts = {
+          method: opts.method,
+          url: "https://" + opts.hostname + opts.url,
+          headers: {
+            'X-Algolia-Application-Id': this.applicationID,
+            'X-Algolia-API-Key': this.apiKey,
+            'Connection':'keep-alive',
+            'Content-Length': 0,
+            'User-Agent': 'Algolia for node.js 1.5.5'
+          },
+          success: function(res) {
+            console.log("sucess")
+            obj._parseJsonRequestByHost_do(opts.callback, res);
+          },
+          error: function(res) {
+            console.log("sucess")
+            opts.callback(true, true, null, { 'message': res.text} );
+          }
+        };
+        if (this.forwardAdminAPIKey !== null) {
+            reqOpts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
+            reqOpts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
+            reqOpts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
+        }
+
+        if (body != null) {
+            reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
+                                                          'Content-Length': body.length });
+            reqOpts.body = body
+        }
+        return reqOpts;
     },
     _computeRequestOptions: function(opts, body) {
         var reqOpts = {
@@ -406,6 +449,17 @@ AlgoliaSearch.prototype = {
         }
         return reqOpts;
     },
+    _parseJsonRequestByHost_do: function(callback, res) {
+        var retry = !(res.status === 400 || res.status === 403 || res.status === 404);
+        var success = (res.status === 200 || res.status === 201);
+
+        if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
+            body = JSON.parse(res.text);
+        } else {
+          body = res.text
+        }
+        callback(retry, !success, res, body);
+    },
     _jsonRequestByHost_do: function(callback, res) {
         var retry = !(res.statusCode === 400 || res.statusCode === 403 || res.statusCode === 404);
         var success = (res.statusCode === 200 || res.statusCode === 201),
@@ -425,6 +479,14 @@ AlgoliaSearch.prototype = {
             res.removeAllListeners();
             callback(retry, !success, res, body);
         });
+    },
+    _parseJsonRequestByHost: function(opts) {
+        var body = null;
+        if (opts.body != null) {
+            body = JSON.stringify(opts.body);
+        }
+        var reqOpts = this._parseComputeRequestOptions(opts, body);
+        Parse.Cloud.httpRequest(reqOpts);
     },
     _jsonRequestByHost: function(opts) {
         var body = null;
