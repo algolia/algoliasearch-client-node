@@ -378,18 +378,33 @@ AlgoliaSearch.prototype = {
         };
         impl();
     },
-    _parseComputeRequestOptions: function(opts, body) {
-        var obj = this;
-        var reqOpts = {
-          method: opts.method,
-          url: "https://" + opts.hostname + opts.url,
-          headers: {
+    _addHeadersRateLimit: function(opts) {
+        if (this.forwardAdminAPIKey !== null) {
+            opts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
+            opts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
+            opts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
+        }
+        return opts
+    },
+    _basicHeaders: function() {
+        return {
             'X-Algolia-Application-Id': this.applicationID,
             'X-Algolia-API-Key': this.apiKey,
             'Connection':'keep-alive',
             'Content-Length': 0,
             'User-Agent': 'Algolia for node.js 1.5.5'
-          },
+        }
+    },
+    _addBodyHeaders: function(headers, length) {
+            return _.extend(headers, { 'Content-Type': 'application/json',
+                                                       'Content-Length': length });
+    },
+    _parseComputeRequestOptions: function(opts, body) {
+        var obj = this;
+        var reqOpts = {
+          method: opts.method,
+          url: "https://" + opts.hostname + opts.url,
+          headers: this._basicHeaders(),
           success: function(res) {
             obj._parseJsonRequestByHost_do(opts.callback, res);
           },
@@ -397,15 +412,11 @@ AlgoliaSearch.prototype = {
             opts.callback(true, true, null, { 'message': res.text} );
           }
         };
-        if (this.forwardAdminAPIKey !== null) {
-            reqOpts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
-            reqOpts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
-            reqOpts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
-        }
+        reqOpts = this._addHeadersRateLimit(reqOpts);
+
 
         if (body != null) {
-            reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
-                                                          'Content-Length': body.length });
+            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, body.length)
             reqOpts.body = body
         }
         return reqOpts;
@@ -416,19 +427,9 @@ AlgoliaSearch.prototype = {
           hostname: opts.hostname,
           port: 443,
           path: opts.url,
-          headers: {
-            'X-Algolia-Application-Id': this.applicationID,
-            'X-Algolia-API-Key': this.apiKey,
-            'Connection':'keep-alive',
-            'Content-Length': 0,
-            'User-Agent': 'Algolia for node.js 1.5.5'
-          }
+          headers: this._basicHeaders()
         };
-        if (this.forwardAdminAPIKey !== null) {
-            reqOpts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
-            reqOpts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
-            reqOpts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
-        }
+        reqOpts = this._addHeadersRateLimit(reqOpts);
 
         if (opts.hostname.indexOf(':') !== -1) {
             var n = opts.hostname.split(':');
@@ -436,29 +437,36 @@ AlgoliaSearch.prototype = {
             reqOpts.port = n[1];
         }
         if (body != null) {
-            reqOpts.headers = _.extend(reqOpts.headers, { 'Content-Type': 'application/json',
-                                                          'Content-Length': new Buffer(body, 'utf8').length });
+            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, new Buffer(body, 'utf8').length)
         }
         if (this.httpsAgent !== null) {
             reqOpts.agent = this.httpsAgent;
         }
         return reqOpts;
     },
+    _haveSucceeded: function(status) {
+      return (status === 200 || status === 201)
+    },
+    _haveFailed: function(status) {
+      return (status === 400 || status == 403 || status == 404)
+    },
     _parseJsonRequestByHost_do: function(callback, res) {
-        var retry = !(res.status === 400 || res.status === 403 || res.status === 404);
-        var success = (res.status === 200 || res.status === 201);
+        var retry = !this._haveFailed(res.status);
+        var success = this._haveSucceeded(res.status);
+        var body = null;
+
 
         if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
             body = JSON.parse(res.text);
         } else {
-          body = res.text
+            body = res.text;
         }
         callback(retry, !success, res, body);
     },
     _jsonRequestByHost_do: function(callback, res) {
-        var retry = !(res.statusCode === 400 || res.statusCode === 403 || res.statusCode === 404);
-        var success = (res.statusCode === 200 || res.statusCode === 201),
-            chunks = new Buffers();
+        var retry = !this._haveFailed(res.statusCode);
+        var success = this._haveSucceeded(res.statusCode);
+        var chunks = new Buffers();
 
         res.on('data', function(chunk) {
             chunks.push(chunk);
@@ -467,7 +475,7 @@ AlgoliaSearch.prototype = {
         res.once('end', function() {
             var body = chunks.toString('utf8');
 
-            if (res && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
+            if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
                 body = JSON.parse(body);
             }
 
