@@ -7,7 +7,6 @@ make-versionned-release: algoliasearch-node.js
 	@echo "Generate ${VERSION} release"
 	@git stash > /dev/null
 	@git checkout ${VERSION} > /dev/null
-	@echo "// ${FILENAME}" > ${FILENAME}
-	@cat $< >> ${FILENAME}
+	@cat $< | sed "s/version = \'.*\'/version = \'${VERSION}\'/" > ${FILENAME}
 	@git checkout master > /dev/null
 	@git stash pop > /dev/null

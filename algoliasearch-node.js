@@ -57,6 +57,11 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.disableRateLimitForward();
 };
 
+/**
+ * Version
+ */
+AlgoliaSearch.version = '1.5.8'
+
 AlgoliaSearch.prototype = {
     /*
      * Delete an index
