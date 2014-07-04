@@ -109,13 +109,15 @@ describe('Algolia', function () {
           error.should.eql(false);
           index.setSettings({'attributesToRetrieve': ['name']}, function(error, content) {
             error.should.eql(false);
-            index.getSettings(function(error, content) {
+            index.waitTask(content.taskID, function(error, content) {
               error.should.eql(false);
-              console.log(content);
-              content.should.have.property('attributesToRetrieve').length(1);
-              content.attributesToRetrieve[0].should.eql('name');
-              client.deleteIndex(safe_index_name('àlgol?à-node'));
-              done();
+              index.getSettings(function(error, content) {
+                error.should.eql(false);
+                content.should.have.property('attributesToRetrieve').length(1);
+                content.attributesToRetrieve[0].should.eql('name');
+                client.deleteIndex(safe_index_name('àlgol?à-node'));
+                done();
+              });
             });
           });
         });
@@ -127,13 +129,10 @@ describe('Algolia', function () {
     client.enableRateLimitForward(process.env.ALGOLIA_API_KEY, '127.0.0.1', process.env.ALGOLIA_API_KEY);
     var index = client.initIndex(safe_index_name('àlgol?à-node'));
     index.setSettings({}, function(error, content) { // ensure index is created
-      console.info(content);
       error.should.eql(false, content);
       index.waitTask(content.taskID, function(error, content) {
-        console.info(content);
         error.should.eql(false);
         index.search('', function(error, content) {
-          console.info(content);
           error.should.eql(false, content);
           client.deleteIndex(safe_index_name('àlgol?à-node'));
           done();
