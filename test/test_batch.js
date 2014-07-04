@@ -66,11 +66,14 @@ describe('Algolia Batch', function () {
             error.should.eql(false);
             index.partialUpdateObjects([{ name: 'Los Angeles', objectID: "à/go/?à"}, { name: 'Los Santos', objectID: '43'}], function(error, content) {
               error.should.eql(false);
-              index.search('los', function(error, content) {
+              index.waitTask(content.taskID, function(error, content) {
                 error.should.eql(false);
-                content.should.have.property('hits').length(2);
-                client.deleteIndex(safe_index_name('àlgol?à-node'));
-                done();
+                index.search('los', function(error, content) {
+                  error.should.eql(false);
+                  content.should.have.property('hits').length(2);
+                  client.deleteIndex(safe_index_name('àlgol?à-node'));
+                  done();
+                });
             });
           });
         });
