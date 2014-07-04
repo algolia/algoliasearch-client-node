@@ -111,6 +111,7 @@ describe('Algolia', function () {
             error.should.eql(false);
             index.getSettings(function(error, content) {
               error.should.eql(false);
+              console.log(content);
               content.should.have.property('attributesToRetrieve').length(1);
               content.attributesToRetrieve[0].should.eql('name');
               client.deleteIndex(safe_index_name('àlgol?à-node'));
