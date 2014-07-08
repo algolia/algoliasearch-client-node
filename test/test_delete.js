@@ -113,5 +113,25 @@ it('should be able to delete [] with error', function (done) {
     });
   });
 
+  it('should be able to delete by query', function (done) {
+    var index = client.initIndex(safe_index_name('àlgol?à-node'));
+    index.clearIndex(function(error, content) {
+      index.addObjects([{name: 'San Francisco'}, { name: 'San Francisco'}, {name: 'Los Angeles'}], function(error, content) {
+        error.should.eql(false);
+        index.waitTask(content.taskID, function(error, content) {
+          error.should.eql(false);
+          index.deleteByQuery('San Francisco', {}, function(error, content) {
+            error.should.eql(false);
+            index.search('', function(error, content) {
+              error.should.eql(false);
+              content.hits.length.should.eql(1);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
 
 });

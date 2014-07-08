@@ -596,6 +596,18 @@ AlgoliaSearch.prototype.Index.prototype = {
         },
 
         /*
+         * Get several objects from this index
+         *
+         * @param objectIDs the array of unique identifier of objects to retrieve
+         */
+        getObjects: function(objectIDs, callback) {
+          requests = [];
+          for (var i = 0; i < objectIDs.length; ++i) {
+              requests.push({ "indexName": this.indexName, "objectID": objectIDs[i]});
+          }
+          this.as._request('POST', '/1/indexes/*/objects', { "requests": requests}, callback);
+        },
+        /*
          * Update partially an object (only update attributes passed in argument)
          *
          * @param partialObject contains the javascript attributes to override, the
@@ -677,6 +689,33 @@ AlgoliaSearch.prototype.Index.prototype = {
                 objectIDs.push({ 'objectID' : value });
             });
             this._batch(objectIDs, 'deleteObject', callback);
+        },
+        /*
+         * Delete all objects matching a query
+         *
+         * @param query the query string
+         * @param params the optional query parameters
+         * @param callback (optional) the result callback with no argument:
+         */
+        deleteByQuery: function(query, params, callback) {
+            params["attributesToRetrieve"] = [ "objectID" ];
+            params["hitsPerPage"] = 1000;
+
+            this.search(query, function(error, results) {
+                if (results["nbHits"] != 0) {
+                    objectIDs = [];
+                    for (var i = 0; i < results["hits"].length; ++i) {
+                        objectIDs.push(results["hits"][i]["objectID"]);
+                    }
+                    this.deleteObjects(objectIDs, function(content, error) {
+                        this.waitTask(content.taskID, function(content, error) {
+                            this.deleteByQuery(query, params, callback);
+                        });
+                    });
+                } else {
+                  callback();
+                }
+            }, params);
         },
         /*
          * Search inside the index

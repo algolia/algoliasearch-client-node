@@ -56,6 +56,25 @@ describe('Algolia Get', function () {
     });
   });
 
+  it('should be able to get objects', function (done) {
+      var index = client.initIndex(safe_index_name('àlgol?à-node'));
+      index.clearIndex(function(error, content) {
+        index.saveObjects([{ name: 'San Francisco', objectID: "1" },{ name: 'Los Angeles', objectID: "2"}], function(error, content) {
+          error.should.eql(false);
+          should.exist(content.taskID);
+          index.waitTask(content.taskID, function(error, content) {
+            error.should.eql(false);
+            index.getObjects(["1", "2"], function(error, content) {
+              error.should.eql(false);
+              content.results[0].should.have.property('name', 'San Francisco');
+              content.results[1].should.have.property('name', 'Los Angeles');
+              client.deleteIndex(safe_index_name('àlgol?à-node'));
+              done();
+          });
+        });
+      });
+    });
+  });
 
 
 
