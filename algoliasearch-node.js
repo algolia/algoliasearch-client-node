@@ -700,6 +700,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         deleteByQuery: function(query, params, callback) {
             params["attributesToRetrieve"] = [ "objectID" ];
             params["hitsPerPage"] = 1000;
+            var index = this
 
             this.search(query, function(error, results) {
                 if (results["nbHits"] != 0) {
@@ -707,13 +708,19 @@ AlgoliaSearch.prototype.Index.prototype = {
                     for (var i = 0; i < results["hits"].length; ++i) {
                         objectIDs.push(results["hits"][i]["objectID"]);
                     }
-                    this.deleteObjects(objectIDs, function(content, error) {
-                        this.waitTask(content.taskID, function(content, error) {
-                            this.deleteByQuery(query, params, callback);
+                    index.deleteObjects(objectIDs, function(error, content) {
+                        if (error) {
+                            callback(error, content);
+                        }
+                        index.waitTask(content.taskID, function(error, content) {
+                            if (error) {
+                                callback(error, content);
+                            }
+                            index.deleteByQuery(query, params, callback);
                         });
                     });
                 } else {
-                  callback();
+                  callback(false, {});
                 }
             }, params);
         },
