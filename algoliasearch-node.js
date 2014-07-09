@@ -1048,6 +1048,9 @@ AlgoliaSearch.prototype.Index.prototype = {
                     query: query,
                     page: 0,
                     hitsPerPage: 1,
+                    attributesToRetrieve: [],
+                    attributesToHighlight: [],
+                    attributesToSnippet: [],
                     facets: disjunctiveFacets[di],
                     facetFilters: filtersD
                 }));
@@ -1069,6 +1072,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     if (i === 0) {
                         continue;
                     }
+                    aggregatedAnswer.processingTimeMS += content.results[i].processingTimeMS;
                     for (var facet in content.results[i].facets) {
                         //// add the facet to the disjunctive facet hash
                         aggregatedAnswer.disjunctiveFacets[facet] = content.results[i].facets[facet];
