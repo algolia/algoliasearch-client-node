@@ -397,6 +397,14 @@ idx.getObject('myID', function(error, content) {
 }, "firstname");
 ```
 
+You can also retrieve a set of objects:
+
+```javascript
+idx.getObjects(['myObj1', 'myObj2'], function(error, content) {
+ // iterate over content
+});
+```
+
 Delete an object
 -------------
 
