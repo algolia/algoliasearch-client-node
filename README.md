@@ -40,6 +40,7 @@ Table of Content
 1. [Search](#search)
 1. [Get an object](#get-an-object)
 1. [Delete an object](#delete-an-object)
+1. [Delete by query](#delete-by-query)
 1. [Index settings](#index-settings)
 1. [List indexes](#list-indexes)
 1. [Delete an index](#delete-an-index)
@@ -374,6 +375,39 @@ The server response will look like:
 ```
 
 
+Multi-queries
+--------------
+
+You can send multiple queries with a single API call using a batch of queries:
+
+```js
+// perform 3 queries in a single API call:
+//  - 1st query targets index `categories`
+//  - 2nd and 3rd queries target index `products`
+client.multipleQueries([{indexName: "categories", query: myQueryString, hitsPerPage: 3},
+    {indexName: "products", query: myQueryString, hitsPerPage: 3, tagFilters: "promotion"},
+    {indexName: "products", query: myQueryString, hitsPerPage: 10}], "indexName", function(error, content) {
+  if (success) {
+    var categories = content.results[0];
+    for (var i = 0; i < categories.hits.length; ++i) {
+      console.log(categories.hits[i]);
+    }
+
+    var products_promotion = content.results[1];
+    for (var i = 0; i < products_promotion.hits.length; ++i) {
+      console.log(products_promotion.hits[i]);
+    }
+
+    var products = content.results[2];
+    for (var i = 0; i < products.hits.length; ++i) {
+      console.log(products.hits[i]);
+    }
+  }
+});
+```
+
+
+
 
 
 
@@ -413,6 +447,18 @@ You can delete an object using its `objectID`:
 ```javascript
 index.deleteObject('myID');
 ```
+
+
+Delete by query
+-------------
+
+You can delete all objects matching a single query with the following code. Internally, the API client performs the query, delete all matching hits, wait until the deletions have been applied and so on.
+
+```javascript
+var params = {};
+index.deleteByQuery('John', params);
+```
+
 
 Index Settings
 -------------
