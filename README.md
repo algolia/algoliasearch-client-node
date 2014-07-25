@@ -68,7 +68,7 @@ To setup your project, follow these steps:
 ```
 npm install algolia-search
 ```
- 2. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
+ 1. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
 **Initialization without keep-alive**
 ```javascript
@@ -119,9 +119,8 @@ To setup your project, follow these steps:
 ```
 cp $PATH_TO/algoliasearch-node.js $PATH_TO_MYPROJECT/cloud/
 ```
- 2. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
+ 1. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
-**Initialization with keep-alive enabled**
 ```javascript
 var Algolia = require('cloud/algoliasearch-node');
 var client = new Algolia('YourApplicationID', 'YourAPIKey');
