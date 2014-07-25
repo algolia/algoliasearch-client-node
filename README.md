@@ -64,11 +64,11 @@ To setup your project, follow these steps:
 
 
 
- 1. Install algolia-search by running 
+ Install algolia-search by running 
 ```
 npm install algolia-search
 ```
- 1. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
+ Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
 **Initialization without keep-alive**
 ```javascript
@@ -115,11 +115,11 @@ Setup with parse
 To setup your project, follow these steps:
 
 
- 1. Add algolia-search by copying `algoliasearch-node` in you cloud directory 
+ Add algolia-search by copying `algoliasearch-node.js` in you cloud directory 
 ```
 cp $PATH_TO/algoliasearch-node.js $PATH_TO_MYPROJECT/cloud/
 ```
- 1. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
+ Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
 ```javascript
 var Algolia = require('cloud/algoliasearch-node');
