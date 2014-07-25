@@ -29,6 +29,7 @@ Table of Content
 **Get started**
 
 1. [Setup](#setup)
+1. [Setup with parse](#setup-with-parse)
 1. [Quick Start](#quick-start)
 1. [General Principle](#general-principle)
 1. [Online documentation](#online-documentation)
@@ -106,6 +107,26 @@ var tunnelingAgent = tunnel.httpsOverHttp({
 });
 var client = new Algolia('YourApplicationID', 'YourAPIKey', tunnelingAgent);
 ```
+
+
+
+Setup with parse
+--------------------
+To setup your project, follow these steps:
+
+
+ 1. Add algolia-search by copying `algoliasearch-node` in you cloud directory 
+```
+cp $PATH_TO/algoliasearch-node.js $PATH_TO_MYPROJECT/cloud/
+```
+ 2. Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
+
+**Initialization with keep-alive enabled**
+```javascript
+var Algolia = require('cloud/algoliasearch-node');
+var client = new Algolia('YourApplicationID', 'YourAPIKey');
+```
+
 
 
 
