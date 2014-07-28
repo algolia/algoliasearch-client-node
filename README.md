@@ -3,8 +3,6 @@ Algolia Search API Client for Node.js
 
 
 
-
-
 [Algolia Search](http://www.algolia.com) is a search API that provides hosted full-text, numerical and faceted search.
 Algolia’s Search API makes it easy to deliver a great search experience in your apps & websites providing:
 
@@ -19,20 +17,20 @@ Algolia’s Search API makes it easy to deliver a great search experience in you
 
 This Node.js client let you easily use the Algolia Search API from your backend. It wraps [Algolia's REST API](http://www.algolia.com/doc/rest_api).
 
-
 [![Build Status](https://travis-ci.org/algolia/algoliasearch-client-node.png?branch=master)](https://travis-ci.org/algolia/algoliasearch-client-node) [![NPM version](https://badge.fury.io/js/algolia-search.png)](http://badge.fury.io/js/algolia-search) [![Code Climate](https://codeclimate.com/github/algolia/algoliasearch-client-node.png)](https://codeclimate.com/github/algolia/algoliasearch-client-node) [![Coverage Status](https://coveralls.io/repos/algolia/algoliasearch-client-node/badge.png?branch=master)](https://coveralls.io/r/algolia/algoliasearch-client-node?branch=master)
 
 
 
 Table of Content
--------------
+================
 **Get started**
 
 1. [Setup](#setup)
 1. [Setup with parse](#setup-with-parse)
 1. [Quick Start](#quick-start)
 1. [General Principle](#general-principle)
-1. [Online documentation](#online-documentation)
+1. [Online documentation](#documentation)
+1. [Tutorials](#tutorials)
 
 **Commands reference**
 
@@ -194,25 +192,33 @@ All API calls will return the result in a callback that takes two arguments:
 
 
 
-Online Documentation
-----------------
+Documentation
+================
 
-Check our [online documentation](http://www.algolia.com/doc):
- * [Initial Import](http://www.algolia.com/doc#InitialImport)
- * [Ranking &amp; Relevance](http://www.algolia.com/doc#RankingRelevance)
- * [Settings](http://www.algolia.com/doc#Settings)
- * [Search](http://www.algolia.com/doc#Search)
- * [Incremental Updates](http://www.algolia.com/doc#IncrementalUpdates)
- * [Reindexing](http://www.algolia.com/doc#Reindexing)
- * [Numeric-Search](http://www.algolia.com/doc#Numeric-Search)
- * [Category-Search](http://www.algolia.com/doc#Category-Search)
- * [Faceting](http://www.algolia.com/doc#Faceting)
- * [Geo-Search](http://www.algolia.com/doc#Geo-Search)
- * [Security](http://www.algolia.com/doc#Security)
- * [Indexing Several Types](http://www.algolia.com/doc#IndexingSeveralTypes)
+Check our [online documentation](http://www.algolia.com/doc/guides/node):
+ * [Initial Import](http://www.algolia.com/doc/guides/node#InitialImport)
+ * [Ranking &amp; Relevance](http://www.algolia.com/doc/guides/node#RankingRelevance)
+ * [Indexing](http://www.algolia.com/doc/guides/node#Indexing)
+ * [Search](http://www.algolia.com/doc/guides/node#Search)
+ * [Sorting](http://www.algolia.com/doc/guides/node#Sorting)
+ * [Filtering](http://www.algolia.com/doc/guides/node#Filtering)
+ * [Faceting](http://www.algolia.com/doc/guides/node#Faceting)
+ * [Geo-Search](http://www.algolia.com/doc/guides/node#Geo-Search)
+ * [Security](http://www.algolia.com/doc/guides/node#Security)
  * [REST API](http://www.algolia.com/doc/rest)
 
+Tutorials
+================
 
+Check our [tutorials](http://www.algolia.com/doc/tutorials):
+ * [Searchbar with auto-completion](http://www.algolia.com/doc/tutorials/auto-complete)
+ * [Searchbar with multi-categories auto-completion](http://www.algolia.com/doc/tutorials/multi-auto-complete)
+ * [Instant-search](http://www.algolia.com/doc/tutorials/instant-search)
+
+
+
+Commands reference
+==================
 
 
 
