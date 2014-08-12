@@ -222,16 +222,16 @@ All API calls will return the result in a callback that takes two arguments:
 Documentation
 ================
 
-Check our [online documentation](http://www.algolia.com/doc/guides/node):
- * [Initial Import](http://www.algolia.com/doc/guides/node#InitialImport)
- * [Ranking &amp; Relevance](http://www.algolia.com/doc/guides/node#RankingRelevance)
- * [Indexing](http://www.algolia.com/doc/guides/node#Indexing)
- * [Search](http://www.algolia.com/doc/guides/node#Search)
- * [Sorting](http://www.algolia.com/doc/guides/node#Sorting)
- * [Filtering](http://www.algolia.com/doc/guides/node#Filtering)
- * [Faceting](http://www.algolia.com/doc/guides/node#Faceting)
- * [Geo-Search](http://www.algolia.com/doc/guides/node#Geo-Search)
- * [Security](http://www.algolia.com/doc/guides/node#Security)
+Check our [online documentation](http://www.algolia.com/doc/node):
+ * [Initial Import](http://www.algolia.com/doc/node#InitialImport)
+ * [Ranking &amp; Relevance](http://www.algolia.com/doc/node#RankingRelevance)
+ * [Indexing](http://www.algolia.com/doc/node#Indexing)
+ * [Search](http://www.algolia.com/doc/node#Search)
+ * [Sorting](http://www.algolia.com/doc/node#Sorting)
+ * [Filtering](http://www.algolia.com/doc/node#Filtering)
+ * [Faceting](http://www.algolia.com/doc/node#Faceting)
+ * [Geo-Search](http://www.algolia.com/doc/node#Geo-Search)
+ * [Security](http://www.algolia.com/doc/node#Security)
  * [REST API](http://www.algolia.com/doc/rest)
 
 Tutorials
