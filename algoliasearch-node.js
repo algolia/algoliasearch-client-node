@@ -698,29 +698,32 @@ AlgoliaSearch.prototype.Index.prototype = {
          * @param callback (optional) the result callback with no argument:
          */
         deleteByQuery: function(query, params, callback) {
-            params["attributesToRetrieve"] = [ "objectID" ];
-            params["hitsPerPage"] = 1000;
-            var index = this
+            params = params || {};
+            params.attributesToRetrieve = [ 'objectID' ];
+            params.hitsPerPage = 1000;
+            var index = this;
 
             this.search(query, function(error, results) {
-                if (results["nbHits"] != 0) {
-                    objectIDs = [];
-                    for (var i = 0; i < results["hits"].length; ++i) {
-                        objectIDs.push(results["hits"][i]["objectID"]);
+                if (!error && results.nbHits > 0) {
+                    var objectIDs = [];
+                    for (var i = 0; i < results.hits.length; ++i) {
+                        objectIDs.push(results.hits[i].objectID);
                     }
                     index.deleteObjects(objectIDs, function(error, content) {
                         if (error) {
-                            callback(error, content);
+                            callback && callback(error, content);
+                            return;
                         }
                         index.waitTask(content.taskID, function(error, content) {
                             if (error) {
-                                callback(error, content);
+                                callback && callback(error, content);
+                                return;
                             }
                             index.deleteByQuery(query, params, callback);
                         });
                     });
                 } else {
-                  callback(false, {});
+                  callback && callback(false, results);
                 }
             }, params);
         },

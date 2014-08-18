@@ -125,6 +125,7 @@ it('should be able to delete [] with error', function (done) {
             index.search('', function(error, content) {
               error.should.eql(false);
               content.hits.length.should.eql(1);
+              index.deleteByQuery('San Francisco');
               done();
             });
           });
