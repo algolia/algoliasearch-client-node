@@ -461,7 +461,7 @@ AlgoliaSearch.prototype = {
         var body = null;
 
 
-        if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
+        if (res && res.headers['Content-Type'] && res.headers['Content-Type'].indexOf('application/json') >= 0) {
             body = JSON.parse(res.text);
         } else {
             body = res.text;
