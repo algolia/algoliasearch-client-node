@@ -424,6 +424,7 @@ AlgoliaSearch.prototype = {
             reqOpts.headers = this._addBodyHeaders(reqOpts.headers, body.length)
             reqOpts.body = body
         }
+        delete reqOpts.headers["Content-Length"];
         return reqOpts;
     },
     _computeRequestOptions: function(opts, body) {
