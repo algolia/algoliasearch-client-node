@@ -759,6 +759,17 @@ index.addUserKeyWithValidity(["search"], 300, 100, 20, function(error, content) 
 });
 ```
 
+Update the rights of an existing key:
+```javascript
+// Update an existing global API key that is valid for 300 seconds
+client.updateUserKeyWithValidity("myAPIKey", ["search"], 300, 0, 0, function(error, content) {
+    console.log("Key:" + content['key']);
+});
+// Update an existing index specific API key valid for 300 seconds, with a rate limit of 100 calls per hour per IP and a maximum of 20 hits
+index.updateUserKeyWithValidity("myAPIKey", ["search"], 300, 100, 20, function(error, content) {
+    console.log("Key:" + content['key']);
+});
+```
 Get the rights of a given key:
 ```javascript
 // Gets the rights of a global key
