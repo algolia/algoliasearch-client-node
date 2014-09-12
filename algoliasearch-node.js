@@ -263,6 +263,80 @@ AlgoliaSearch.prototype = {
         this._request('POST', '/1/keys', aclsObjects, callback);
     },
     /*
+     * Update a user key
+     *
+     * @param acls the list of ACL for this key. Defined by an array of strings that
+     * can contains the following values:
+     *   - search: allow to search (https and http)
+     *   - addObject: allows to add/update an object in the index (https only)
+     *   - deleteObject : allows to delete an existing object (https only)
+     *   - deleteIndex : allows to delete index content (https only)
+     *   - settings : allows to get index settings (https only)
+     *   - editSettings : allows to change index settings (https only)
+     * @param callback the result callback with two arguments
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
+     */
+    updateUserKey: function(key, acls, callback) {
+        var aclsObject = {};
+        aclsObject.acl = acls;
+        this._request('PUT', '/1/keys/' + key, aclsObject, callback);
+    },
+    /*
+     * Update a user key
+     *
+     * @param acls the list of ACL for this key. Defined by an array of strings that
+     * can contains the following values:
+     *   - search: allow to search (https and http)
+     *   - addObject: allows to add/update an object in the index (https only)
+     *   - deleteObject : allows to delete an existing object (https only)
+     *   - deleteIndex : allows to delete index content (https only)
+     *   - settings : allows to get index settings (https only)
+     *   - editSettings : allows to change index settings (https only)
+     * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+     * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour. Defaults to 0 (no rate limit).
+     * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. Defaults to 0 (unlimited)
+     * @param callback the result callback with two arguments
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
+     */
+    updateUserKeyWithValidity: function(key, acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, callback) {
+        var aclsObject = {};
+        aclsObject.acl = acls;
+        aclsObject.validity = validity;
+        aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+        aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+        this._request('PUT', '/1/keys/' + key, aclsObjects, callback);
+    },
+    /*
+     * Update a user key
+     *
+     * @param acls the list of ACL for this key. Defined by an array of strings that
+     * can contains the following values:
+     *   - search: allow to search (https and http)
+     *   - addObject: allows to add/update an object in the index (https only)
+     *   - deleteObject : allows to delete an existing object (https only)
+     *   - deleteIndex : allows to delete index content (https only)
+     *   - settings : allows to get index settings (https only)
+     *   - editSettings : allows to change index settings (https only)
+     * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+     * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour. (0 means no rate limit).
+     * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. (0 means unlimited)
+     * @param indexes the list of targeted indexes
+     * @param callback the result callback with two arguments
+     *  error: boolean set to true if the request had an error
+     *  content: the server answer with user keys list or error description if error is true.
+     */
+    updateUserKeyWithValidityAndIndexes: function(key, acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, indexes, callback) {
+        var aclsObject = {};
+        aclsObject.acl = acls;
+        aclsObject.validity = validity;
+        aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+        aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+        aclsObject.indexes = indexes;
+        this._request('PUT', '/1/keys/' + key, aclsObjects, callback);
+    },
+    /*
      * Generate a secured and public API Key from a list of tagFilters and an
      * optional user token identifying the current user
      *
@@ -1000,6 +1074,52 @@ AlgoliaSearch.prototype.Index.prototype = {
             aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
             aclsObject.maxHitsPerQuery = maxHitsPerQuery;
             this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, callback);
+        },
+        /*
+         * Update an existing user key associated to this index
+         *
+         * @param acls the list of ACL for this key. Defined by an array of strings that
+         * can contains the following values:
+         *   - search: allow to search (https and http)
+         *   - addObject: allows to add/update an object in the index (https only)
+         *   - deleteObject : allows to delete an existing object (https only)
+         *   - deleteIndex : allows to delete index content (https only)
+         *   - settings : allows to get index settings (https only)
+         *   - editSettings : allows to change index settings (https only)
+         * @param callback the result callback with two arguments
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
+         */
+        updateUserKey: function(key, acls, callback) {
+            var aclsObject = {};
+            aclsObject.acl = acls;
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, callback);
+        },
+        /*
+         * Update an existing user key associated to this index
+         *
+         * @param acls the list of ACL for this key. Defined by an array of strings that
+         * can contains the following values:
+         *   - search: allow to search (https and http)
+         *   - addObject: allows to add/update an object in the index (https only)
+         *   - deleteObject : allows to delete an existing object (https only)
+         *   - deleteIndex : allows to delete index content (https only)
+         *   - settings : allows to get index settings (https only)
+         *   - editSettings : allows to change index settings (https only)
+         * @param validity the number of seconds after which the key will be automatically removed (0 means no time limit for this key)
+         * @param maxQueriesPerIPPerHour Specify the maximum number of API calls allowed from an IP address per hour.  Defaults to 0 (no rate limit).
+         * @param maxHitsPerQuery Specify the maximum number of hits this API key can retrieve in one call. Defaults to 0 (unlimited)
+         * @param callback the result callback with two arguments
+         *  error: boolean set to true if the request had an error
+         *  content: the server answer with user keys list or error description if error is true.
+         */
+        updateUserKeyWithValidity: function(key, acls, validity, maxQueriesPerIPPerHour, maxHitsPerQuery, callback) {
+            var aclsObject = {};
+            aclsObject.acl = acls;
+            aclsObject.validity = validity;
+            aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
+            aclsObject.maxHitsPerQuery = maxHitsPerQuery;
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, callback);
         },
 
         /*

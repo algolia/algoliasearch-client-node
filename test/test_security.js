@@ -33,17 +33,26 @@ describe('Algolia Security', function () {
           error.should.eql(false);
           content.should.have.property('acl').length(1);
           content.acl[0].should.eql('search');
-          client.listUserKeys(function(error, content) {
+          client.updateUserKey(key, ['addObject'], function(error, content) {
             error.should.eql(false);
-            content.should.have.property('keys').length(keys + 1);
-            client.deleteUserKey(key, function(error, content) {
+            sleep.sleep(2); // no task ID here
+            client.getUserKeyACL(key, function(error, content) {
               error.should.eql(false);
-              sleep.sleep(2); // no task ID here
+              content.should.have.property('acl').length(1);
+              content.acl[0].should.eql('addObject');
               client.listUserKeys(function(error, content) {
-                error.should.have.eql(false);
-                content.should.have.property('keys').length(keys);
-              done();
-              })
+                error.should.eql(false);
+                content.should.have.property('keys').length(keys + 1);
+                client.deleteUserKey(key, function(error, content) {
+                  error.should.eql(false);
+                  sleep.sleep(2); // no task ID here
+                  client.listUserKeys(function(error, content) {
+                    error.should.have.eql(false);
+                    content.should.have.property('keys').length(keys);
+                    done();
+                  });
+                });
+              });
             });
           });
         });
@@ -70,17 +79,26 @@ it('should be able to add a security for index', function (done) {
               error.should.eql(false);
               content.should.have.property('acl').length(1);
               content.acl[0].should.eql('search');
-              index.listUserKeys(function(error, content) {
+              index.updateUserKey(key, ['addObject'], function(error, content) {
                 error.should.eql(false);
-                content.should.have.property('keys').length(keys + 1);
-                index.deleteUserKey(key, function(error, content) {
+                sleep.sleep(2); // no task ID here
+                index.getUserKeyACL(key, function(error, content) {
                   error.should.eql(false);
-                  sleep.sleep(2); // no task ID here
+                  content.should.have.property('acl').length(1);
+                  content.acl[0].should.eql('addObject');
                   index.listUserKeys(function(error, content) {
-                    error.should.have.eql(false);
-                    content.should.have.property('keys').length(keys);
-                    client.deleteIndex(safe_index_name('àlgol?à-node'));
-                  done();
+                    error.should.eql(false);
+                    content.should.have.property('keys').length(keys + 1);
+                    index.deleteUserKey(key, function(error, content) {
+                      error.should.eql(false);
+                      sleep.sleep(2); // no task ID here
+                      index.listUserKeys(function(error, content) {
+                        error.should.have.eql(false);
+                        content.should.have.property('keys').length(keys);
+                        client.deleteIndex(safe_index_name('àlgol?à-node'));
+                      done();
+                      });
+                    });
                   });
                 });
               });
