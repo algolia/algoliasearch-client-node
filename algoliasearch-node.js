@@ -37,6 +37,7 @@ if (typeof Parse === 'undefined') {
 var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
+    this.hosts = [];
     if (_.isUndefined(hostsArray)) {
         hostsArray = [applicationID + '-1.algolia.io',
                       applicationID + '-2.algolia.io',
