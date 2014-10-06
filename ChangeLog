@@ -1,0 +1,4 @@
+CHANGELOG
+
+2014-10-06  1.5.14
+   * Fixed bug preventing the creation of multiple instances of AlgoliaSearch
