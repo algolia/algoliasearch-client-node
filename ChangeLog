@@ -1,4 +1,7 @@
 CHANGELOG
 
+2014-10-07  1.6.0
+   * Added public method to add custom http headers
+
 2014-10-06  1.5.14
    * Fixed bug preventing the creation of multiple instances of AlgoliaSearch
