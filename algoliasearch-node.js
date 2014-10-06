@@ -38,6 +38,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
     this.hosts = [];
+    this.requestHeaders = {};
     if (_.isUndefined(hostsArray)) {
         hostsArray = [applicationID + '-1.algolia.io',
                       applicationID + '-2.algolia.io',
@@ -394,6 +395,16 @@ AlgoliaSearch.prototype = {
         this.forwardLimitAPIKey = null;
     },
 
+   /**
+     * Add an extra field to the HTTP request
+     * 
+     * @param key the header field name
+     * @param value the header field value
+     */
+    setExtraHeader: function(key, value) {
+        this.requestHeaders[key] = value;
+    },
+
     _request: function(method, url, body, callback) {
         this._jsonRequest({ method: method,
                             url: url,
@@ -476,15 +487,16 @@ AlgoliaSearch.prototype = {
         }
     },
     _addBodyHeaders: function(headers, length) {
-            return _.extend(headers, { 'Content-Type': 'application/json',
+        return _.extend(headers, { 'Content-Type': 'application/json',
                                                        'Content-Length': length });
     },
     _parseComputeRequestOptions: function(opts, body) {
         var obj = this;
+        _.extend(this.requestHeaders, this._basicHeaders());
         var reqOpts = {
           method: opts.method,
           url: "https://" + opts.hostname + opts.url,
-          headers: this._basicHeaders(),
+          headers: this.requestHeaders,
           success: function(res) {
             obj._parseJsonRequestByHost_do(opts.callback, res);
           },
@@ -503,12 +515,13 @@ AlgoliaSearch.prototype = {
         return reqOpts;
     },
     _computeRequestOptions: function(opts, body) {
+        _.extend(this.requestHeaders, this._basicHeaders());
         var reqOpts = {
           method: opts.method,
           hostname: opts.hostname,
           port: 443,
           path: opts.url,
-          headers: this._basicHeaders()
+          headers: this.requestHeaders
         };
         reqOpts = this._addHeadersRateLimit(reqOpts);
 
