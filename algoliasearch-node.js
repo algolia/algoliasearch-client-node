@@ -483,7 +483,7 @@ AlgoliaSearch.prototype = {
             'X-Algolia-API-Key': this.apiKey,
             'Connection':'keep-alive',
             'Content-Length': 0,
-            'User-Agent': 'Algolia for node.js 1.5.5'
+            'User-Agent': 'Algolia for node.js ' + AlgoliaSearch.version
         }
     },
     _addBodyHeaders: function(headers, length) {
