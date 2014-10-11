@@ -1,5 +1,8 @@
 CHANGELOG
 
+2014-10-11  1.6.1
+   * Updated the api call method to include the latest client version number
+
 2014-10-07  1.6.0
    * Added public method to add custom http headers
 

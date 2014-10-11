@@ -1,7 +1,7 @@
 {
   "name": "algolia-search",
   "description": "Algolia search client.",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "author": "Julien Lemoine <julien.lemoine@algolia.com>",
   "private": false,
   "engines": [

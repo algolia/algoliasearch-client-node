@@ -62,7 +62,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
 /**
  * Version
  */
-AlgoliaSearch.version = '1.6.0';
+AlgoliaSearch.version = '1.6.1';
 
 AlgoliaSearch.prototype = {
     /*
