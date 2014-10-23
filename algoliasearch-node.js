@@ -487,7 +487,7 @@ AlgoliaSearch.prototype = {
         }
     },
     _addBodyHeaders: function(headers, length) {
-        return _.extend(headers, { 'Content-Type': 'application/json',
+        return _.extend(headers, { 'Content-Type': 'application/json;charset=utf-8',
                                                        'Content-Length': length });
     },
     _parseComputeRequestOptions: function(opts, body) {
@@ -506,10 +506,10 @@ AlgoliaSearch.prototype = {
         };
         reqOpts = this._addHeadersRateLimit(reqOpts);
 
-
+        var bodyUTF = body.toString('utf8');
         if (body != null) {
-            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, body.length)
-            reqOpts.body = body
+            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, bodyUTF.length)
+            reqOpts.body = bodyUTF
         }
         delete reqOpts.headers["Content-Length"];
         return reqOpts;
