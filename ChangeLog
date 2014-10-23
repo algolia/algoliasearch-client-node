@@ -1,5 +1,8 @@
 CHANGELOG
 
+2014-10-23  1.6.2
+   * Force UTF-8 encoding while performing JSON requests
+
 2014-10-11  1.6.1
    * Updated the api call method to include the latest client version number
 
