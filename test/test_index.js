@@ -3,7 +3,7 @@ var should = require('should'),
 
 
 describe('Algolia Index', function () {
-  var Algolia = require('../algoliasearch-node');
+  var Algolia = require('../src/algoliasearch-node');
   function safe_index_name(name) {
     if (!process.env.TRAVIS)
     {  return name}

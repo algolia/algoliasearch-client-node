@@ -1,4 +1,4 @@
-var jsFiles = [ 'algoliasearch-node.js' ];
+var jsFiles = [ 'src/algoliasearch-node.js' ];
 
 module.exports = function(grunt) {
   grunt.initConfig({

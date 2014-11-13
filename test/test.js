@@ -7,7 +7,7 @@ var should = require('should'),
  */
 describe('Mocked Algolia', function () {
   var mockHttps = require('./mocks/https'),
-    Algolia = moquire('../algoliasearch-node', {
+    Algolia = moquire('../src/algoliasearch-node', {
       https: mockHttps
     });
 
@@ -82,7 +82,7 @@ describe('Mocked Algolia', function () {
 });
 
 describe('Algolia', function () {
-  var Algolia = require('../algoliasearch-node');
+  var Algolia = require('../src/algoliasearch-node');
 
   function safe_index_name(name) {
     if (!process.env.TRAVIS)

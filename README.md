@@ -113,9 +113,9 @@ Setup with parse
 To setup your project, follow these steps:
 
 
- Add algolia-search by copying `algoliasearch-node.js` in you cloud directory 
+ Add algolia-search by copying `src/algoliasearch-node.js` in you cloud directory 
 ```
-cp $PATH_TO/algoliasearch-node.js $PATH_TO_MYPROJECT/cloud/
+cp $PATH_TO/src/algoliasearch-node.js $PATH_TO_MYPROJECT/cloud/
 ```
  Initialize the client with your ApplicationID and API-Key. You can find all of them on [your Algolia account](http://www.algolia.com/users/edit).
 
