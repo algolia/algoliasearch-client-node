@@ -1,5 +1,8 @@
 CHANGELOG
 
+2014-11-21  1.6.3
+   * Added a method to use a secured API Key (useful to use userToken instead of IP for rate limit)
+
 2014-10-23  1.6.2
    * Force UTF-8 encoding while performing JSON requests
 
