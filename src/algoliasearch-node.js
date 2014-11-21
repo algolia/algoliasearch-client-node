@@ -395,6 +395,24 @@ AlgoliaSearch.prototype = {
         this.forwardLimitAPIKey = null;
     },
 
+    /* 
+     * Specify the securedAPIKey to use with associated information
+     */
+    useSecuredAPIKey: function(securedAPIKey, securityTags, userToken) {
+        this.securedAPIKey = securedAPIKey;
+        this.securityTags = securityTags;
+        this.userToken = userToken;
+    },
+
+    /*
+     * If a secured API was used, disable it
+     */    
+    disableSecuredAPIKey : function() {
+        this.securedAPIKey = null;
+        this.SecurityTags = null;
+        this.userToken = null;
+    },
+
    /**
      * Add an extra field to the HTTP request
      * 
@@ -477,6 +495,18 @@ AlgoliaSearch.prototype = {
         }
         return opts
     },
+    _addHeadersSecuredAPIKey: function(opts) {
+        if (this.securedAPIKey !== null) {
+            opts.headers['X-Algolia-API-Key'] = this.securedAPIKey;
+        }
+        if (this.securityTags !== null) {
+	    opts.headers['X-Algolia-TagFilters'] = this.securityTags;
+        }
+	if (this.userToken !== null) {
+            opts.headers['X-Algolia-UserToken'] = this.userToken;
+        }
+        return opts
+    },
     _basicHeaders: function() {
         return {
             'X-Algolia-Application-Id': this.applicationID,
@@ -505,6 +535,7 @@ AlgoliaSearch.prototype = {
           }
         };
         reqOpts = this._addHeadersRateLimit(reqOpts);
+	reqOpts = this._addHeadersSecuredAPIKey(reqOpts);
 
         var bodyUTF = body.toString('utf8');
         if (body != null) {
@@ -524,6 +555,7 @@ AlgoliaSearch.prototype = {
           headers: this.requestHeaders
         };
         reqOpts = this._addHeadersRateLimit(reqOpts);
+	reqOpts = this._addHeadersSecuredAPIKey(reqOpts);
 
         if (opts.hostname.indexOf(':') !== -1) {
             var n = opts.hostname.split(':');
