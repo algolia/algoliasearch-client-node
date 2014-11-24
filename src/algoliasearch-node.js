@@ -57,6 +57,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     }
     this.httpsAgent = _.isUndefined(httpsAgent) ? null : httpsAgent;
     this.disableRateLimitForward();
+    this.disableSecuredAPIKey();
 };
 
 /**
