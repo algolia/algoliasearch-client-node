@@ -1,5 +1,8 @@
 CHANGELOG
 
+2014-11-25  1.6.4
+   * Fixed a bug introduced in 1.6.3 avoiding non-secured API calls to proceed
+
 2014-11-21  1.6.3
    * Added a method to use a secured API Key (useful to use userToken instead of IP for rate limit)
 
