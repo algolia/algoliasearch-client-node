@@ -489,7 +489,7 @@ AlgoliaSearch.prototype = {
         impl();
     },
     _addHeadersRateLimit: function(opts) {
-        if (this.forwardAdminAPIKey !== null) {
+        if (this.forwardAdminAPIKey) {
             opts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
             opts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
             opts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
@@ -497,13 +497,13 @@ AlgoliaSearch.prototype = {
         return opts
     },
     _addHeadersSecuredAPIKey: function(opts) {
-        if (this.securedAPIKey !== null) {
+        if (this.securedAPIKey) {
             opts.headers['X-Algolia-API-Key'] = this.securedAPIKey;
         }
-        if (this.securityTags !== null) {
-	    opts.headers['X-Algolia-TagFilters'] = this.securityTags;
+        if (this.securityTags) {
+    	    opts.headers['X-Algolia-TagFilters'] = this.securityTags;
         }
-	if (this.userToken !== null) {
+	    if (this.userToken) {
             opts.headers['X-Algolia-UserToken'] = this.userToken;
         }
         return opts
