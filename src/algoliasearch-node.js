@@ -603,7 +603,12 @@ AlgoliaSearch.prototype = {
             var body = chunks.toString('utf8');
 
             if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
-                body = JSON.parse(body);
+                try {
+                    body = JSON.parse(body);
+                } catch (e) {
+                    success = false;
+                    body = { message: 'Cannot parse JSON', body: body };
+                }
             }
 
             res.removeAllListeners();
