@@ -538,8 +538,8 @@ AlgoliaSearch.prototype = {
         reqOpts = this._addHeadersRateLimit(reqOpts);
 	reqOpts = this._addHeadersSecuredAPIKey(reqOpts);
 
-        var bodyUTF = body.toString('utf8');
         if (body != null) {
+            var bodyUTF = body.toString('utf8');
             reqOpts.headers = this._addBodyHeaders(reqOpts.headers, bodyUTF.length)
             reqOpts.body = bodyUTF
         }
