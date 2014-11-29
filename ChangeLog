@@ -1,5 +1,9 @@
 CHANGELOG
 
+2014-11-29  1.7.0
+   * Moved the API calls to algolia.net instead of algolia.io domain
+   * Fixed a bug (toString potentially called on a null string)
+
 2014-11-25  1.6.4
    * Fixed a bug introduced in 1.6.3 avoiding non-secured API calls to proceed
 
