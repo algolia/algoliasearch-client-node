@@ -40,9 +40,9 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.hosts = [];
     this.requestHeaders = {};
     if (_.isUndefined(hostsArray)) {
-        hostsArray = [applicationID + '-1.algolia.io',
-                      applicationID + '-2.algolia.io',
-                      applicationID + '-3.algolia.io'];
+        hostsArray = [applicationID + '-1.algolia.net',
+                      applicationID + '-2.algolia.net',
+                      applicationID + '-3.algolia.net'];
     }
 
     // Add hosts in random order
