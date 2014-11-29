@@ -12,7 +12,7 @@ describe('Mocked Algolia', function () {
     });
 
   // we don't have to use real hosts or API keys since we simulate the server
-  var hosts = ['ApplicationID-1.algolia.io', 'ApplicationID-2.algolia.io', 'ApplicationID-3.algolia.io'],
+  var hosts = ['ApplicationID-1.algolia.net', 'ApplicationID-2.algolia.net', 'ApplicationID-3.algolia.net'],
       client = new Algolia('ApplicationID', 'API-Key', hosts);
 
   it('should send search request', function (done) {
