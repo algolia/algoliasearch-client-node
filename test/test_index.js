@@ -48,7 +48,7 @@ describe('Algolia Index', function () {
               });
             });
           });
-        }, 2000);
+        }, 5000);
       });
     });
   });
@@ -85,7 +85,7 @@ describe('Algolia Index', function () {
               });
             });
           }, 42);
-        }, 2000);
+        }, 5000);
       });
     });
   });

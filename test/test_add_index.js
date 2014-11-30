@@ -54,7 +54,7 @@ describe('Algolia Add Index', function () {
             });
           });
         });
-      }, 2000);
+      }, 5000);
     });
   });
 

@@ -28,14 +28,14 @@ describe('Algolia Security', function () {
       client.addUserKey(['search'], function(error, content) {
         error.should.eql(false);
         key = content.key;
-        sleep.sleep(2); // no task ID here
+        sleep.sleep(5); // no task ID here
         client.getUserKeyACL(key, function(error, content) {
           error.should.eql(false);
           content.should.have.property('acl').length(1);
           content.acl[0].should.eql('search');
           client.updateUserKey(key, ['addObject'], function(error, content) {
             error.should.eql(false);
-            sleep.sleep(2); // no task ID here
+            sleep.sleep(5); // no task ID here
             client.getUserKeyACL(key, function(error, content) {
               error.should.eql(false);
               content.should.have.property('acl').length(1);
@@ -45,7 +45,7 @@ describe('Algolia Security', function () {
                 content.should.have.property('keys').length(keys + 1);
                 client.deleteUserKey(key, function(error, content) {
                   error.should.eql(false);
-                  sleep.sleep(2); // no task ID here
+                  sleep.sleep(5); // no task ID here
                   client.listUserKeys(function(error, content) {
                     error.should.have.eql(false);
                     content.should.have.property('keys').length(keys);
@@ -74,14 +74,14 @@ it('should be able to add a security for index', function (done) {
           index.addUserKey(['search'], function(error, content) {
             error.should.eql(false);
             key = content.key;
-            sleep.sleep(2); // no task ID here
+            sleep.sleep(5); // no task ID here
             index.getUserKeyACL(key, function(error, content) {
               error.should.eql(false);
               content.should.have.property('acl').length(1);
               content.acl[0].should.eql('search');
               index.updateUserKey(key, ['addObject'], function(error, content) {
                 error.should.eql(false);
-                sleep.sleep(2); // no task ID here
+                sleep.sleep(5); // no task ID here
                 index.getUserKeyACL(key, function(error, content) {
                   error.should.eql(false);
                   content.should.have.property('acl').length(1);
@@ -91,7 +91,7 @@ it('should be able to add a security for index', function (done) {
                     content.should.have.property('keys').length(keys + 1);
                     index.deleteUserKey(key, function(error, content) {
                       error.should.eql(false);
-                      sleep.sleep(2); // no task ID here
+                      sleep.sleep(5); // no task ID here
                       index.listUserKeys(function(error, content) {
                         error.should.have.eql(false);
                         content.should.have.property('keys').length(keys);
