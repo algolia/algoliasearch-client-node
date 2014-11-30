@@ -35,6 +35,6 @@
   },
   "main": "./src/algoliasearch-node.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -r mocha-istanbul -R mocha-lcov-reporter -R spec --timeout 20000"
+    "test": "istanbul cover _mocha -- -r mocha-istanbul -R mocha-lcov-reporter -R spec --timeout 40000"
   }
 }
