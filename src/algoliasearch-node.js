@@ -107,17 +107,24 @@ AlgoliaSearch.prototype = {
      *  error: boolean set to true if the request had an error
      *  content: the server answer with index list or error description if error is true.
      */
-    getLogs: function(callback, offset, length, onlyErrors) {
+    getLogs: function(callback, offset, length, type) {
         if (_.isUndefined(offset)) {
             offset = 0;
         }
         if (_.isUndefined(length)) {
             length = 10;
         }
-        if (_.isUndefined(onlyErrors)) {
-            onlyErrors = false;
+        if (_.isUndefined(type)) {
+            type = all;
         }
-        this._request('GET', '/1/logs?offset=' + offset + '&length=' + length + '&onlyErrors=' + onlyErrors, null, callback);
+        if (_.isBoolean(type)) {
+            if (type === true) {
+                type = "error"
+            } else {
+                type = "all"
+            }
+        }
+        this._request('GET', '/1/logs?offset=' + offset + '&length=' + length + '&type=' + type, null, callback);
     },
     /*
      * This method allows to query multiple indexes with one API call

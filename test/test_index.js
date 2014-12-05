@@ -142,7 +142,7 @@ describe('Algolia Index', function () {
               error.should.eql(false);
               content.should.have.property('logs');
               done();
-          });
+          }, 0, 1, "build");
         });
       });
     });
