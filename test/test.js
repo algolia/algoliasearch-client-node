@@ -18,10 +18,11 @@ describe('Mocked Algolia', function () {
   it('should send search request', function (done) {
     mockHttps.setResponders(function (options) {
       should.exist(options);
-      options.should.have.property('method', 'GET');
+      options.should.have.property('method', 'POST');
       options.should.have.property('hostname');
       hosts.should.include(options.hostname);
-      options.should.have.property('path', '/1/indexes/%C3%A0lgol%3F%C3%A0-node?query=loz%20anqel');
+      options.should.have.property('path', '/1/indexes/%C3%A0lgol%3F%C3%A0-node/query')
+      options.should.have.property("body", '{"params":"query=loz%20anqel"}');
 
       return {
         statusCode: 200,

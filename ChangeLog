@@ -1,5 +1,7 @@
 CHANGELOG
 
+   * Switch search method from GET to POST
+
 2014-11-29  1.7.0
    * Moved the API calls to algolia.net instead of algolia.io domain
    * Fixed a bug (toString potentially called on a null string)

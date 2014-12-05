@@ -922,11 +922,11 @@ AlgoliaSearch.prototype.Index.prototype = {
          *   one is kept and others are removed.
          */
         search: function(query, callback, args, ClassToDerive) {
-            var params = '?query=' + encodeURIComponent(query);
+            var params = 'query=' + encodeURIComponent(query);
             if (!_.isUndefined(args)) {
                 params = this._getSearchParams(args, params);
             }
-            this.as._requestDerive('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + params, null, callback, ClassToDerive);
+            this.as._requestDerive('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/query', {params: params}, callback, ClassToDerive);
         },
 
         /*

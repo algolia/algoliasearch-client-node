@@ -42,6 +42,10 @@ FakeRequest.prototype.end = function () {
   res.simulate();
 };
 
+FakeRequest.prototype.write = function (body, encoding) {
+  this.options.body = body;
+};
+
 function FakeResponse(response) {
   events.EventEmitter.call(this);
 
