@@ -38,6 +38,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
     this.hosts = [];
+    this.timeout = 30000;
     this.requestHeaders = {};
     if (_.isUndefined(hostsArray)) {
         hostsArray = [applicationID + '-1.algolia.net',
@@ -431,6 +432,18 @@ AlgoliaSearch.prototype = {
         this.requestHeaders[key] = value;
     },
 
+    /**
+      * Set the read timeout
+      * 
+      * @param value timeout in millisecond
+      */
+    setTimeout: function(value) {
+      if (typeof Parse !== 'undefined') {
+        console.log("The timeout is ignored with Parse");
+      }
+      this.timeout = value;
+    },
+
     _request: function(method, url, body, callback) {
         this._jsonRequest({ method: method,
                             url: url,
@@ -640,6 +653,7 @@ AlgoliaSearch.prototype = {
         var req = https.request(reqOpts, function(res) {
             obj._jsonRequestByHost_do(opts.callback, res);
         });
+        req.setTimeout(this.timeout);
         req.once('error', function(e) {
             opts.callback(true, true, null, { 'message': e} );
         });

@@ -42,6 +42,10 @@ FakeRequest.prototype.end = function () {
   res.simulate();
 };
 
+FakeRequest.prototype.setTimeout = function(value, callback) {
+  //Nothing to do
+}
+
 FakeRequest.prototype.write = function (body, encoding) {
   this.options.body = body;
 };
