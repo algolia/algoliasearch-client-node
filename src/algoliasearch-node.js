@@ -862,13 +862,19 @@ AlgoliaSearch.prototype.Index.prototype = {
                             callback && callback(error, content);
                             return;
                         }
-                        index.waitTask(content.taskID, function(error, content) {
-                            if (error) {
-                                callback && callback(error, content);
-                                return;
-                            }
-                            index.deleteByQuery(query, params, callback);
-                        });
+                        if (typeof Parse === 'undefined') {
+                            index.waitTask(content.taskID, function(error, content) {
+                                if (error) {
+                                    callback && callback(error, content);
+                                    return;
+                                }
+                                index.deleteByQuery(query, params, callback);
+                            });
+                        } else if (results.nbHits > 1000) {
+                            callback && callback(true, { message: 'Cannot delete more than 1,000 results at a time on Parse.com' });
+                        } else {
+                            callback && callback(false, results);
+                        }
                     });
                 } else {
                   callback && callback(false, results);
