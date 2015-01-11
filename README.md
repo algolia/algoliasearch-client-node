@@ -17,7 +17,7 @@ Algolia’s Search API makes it easy to deliver a great search experience in you
 
 This Node.js client let you easily use the Algolia Search API from your backend. It wraps [Algolia's REST API](http://www.algolia.com/doc/rest_api).
 
-[![Build Status](https://travis-ci.org/algolia/algoliasearch-client-node.png?branch=master)](https://travis-ci.org/algolia/algoliasearch-client-node) [![NPM version](https://badge.fury.io/js/algolia-search.png)](http://badge.fury.io/js/algolia-search) [![Code Climate](https://codeclimate.com/github/algolia/algoliasearch-client-node.png)](https://codeclimate.com/github/algolia/algoliasearch-client-node) [![Coverage Status](https://coveralls.io/repos/algolia/algoliasearch-client-node/badge.png?branch=master)](https://coveralls.io/r/algolia/algoliasearch-client-node?branch=master)
+[![Build Status](https://travis-ci.org/algolia/algoliasearch-client-node.svg?branch=master)](https://travis-ci.org/algolia/algoliasearch-client-node) [![NPM version](https://badge.fury.io/js/algolia-search.svg)](http://badge.fury.io/js/algolia-search) [![Code Climate](https://codeclimate.com/github/algolia/algoliasearch-client-node.svg)](https://codeclimate.com/github/algolia/algoliasearch-client-node) [![Coverage Status](https://coveralls.io/repos/algolia/algoliasearch-client-node/badge.png?branch=master)](https://coveralls.io/r/algolia/algoliasearch-client-node?branch=master)
 
 
 
