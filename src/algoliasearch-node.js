@@ -489,13 +489,14 @@ AlgoliaSearch.prototype = {
                 idx = position;
             }
             if (!Array.isArray(self.hosts) || self.hosts.length <= idx) {
-                callback(true, null, { message: 'Cannot contact server'});
+                callback(true, null, { message: 'Cannot contact server', httpCode: 0});
                 return;
             }
             opts.callback = function(retry, error, res, body) {
                 if (retry && error && (idx + 1) < self.hosts.length) {
                     impl(idx + 1);
                 } else {
+                    body.httpCode = res.statusCode;
                     callback(error, res, body);
                 }
             };
@@ -552,7 +553,7 @@ AlgoliaSearch.prototype = {
             obj._parseJsonRequestByHost_do(opts.callback, res);
           },
           error: function(res) {
-            opts.callback(true, true, null, { 'message': res.text} );
+            opts.callback(true, true, null, { 'message': res.text, httpCode: 0} );
           }
         };
         reqOpts = this._addHeadersRateLimit(reqOpts);
@@ -627,7 +628,7 @@ AlgoliaSearch.prototype = {
                     body = JSON.parse(body);
                 } catch (e) {
                     success = false;
-                    body = { message: 'Cannot parse JSON', body: body };
+                    body = { message: 'Cannot parse JSON', httpCode: 0, body: body };
                 }
             }
 
@@ -655,7 +656,7 @@ AlgoliaSearch.prototype = {
         });
         req.setTimeout(this.timeout);
         req.once('error', function(e) {
-            opts.callback(true, true, null, { 'message': e} );
+            opts.callback(true, true, null, { 'message': e, httpCode: 0} );
         });
 
         if (body != null) {
@@ -818,7 +819,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          */
         deleteObject: function(objectID, callback) {
             if (!objectID || ('' + objectID) === '') {
-                callback(true, { message: 'empty objectID'});
+                callback(true, { message: 'empty objectID', httpCode: 0});
                 return;
             }
             this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), null, callback);
@@ -871,7 +872,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                                 index.deleteByQuery(query, params, callback);
                             });
                         } else if (results.nbHits > 1000) {
-                            callback && callback(true, { message: 'Cannot delete more than 1,000 results at a time on Parse.com' });
+                            callback && callback(true, { message: 'Cannot delete more than 1,000 results at a time on Parse.com', httpCode: 0 });
                         } else {
                             callback && callback(false, results);
                         }
