@@ -64,7 +64,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
 /**
  * Version
  */
-AlgoliaSearch.version = '1.7.3';
+AlgoliaSearch.version = '1.7.4';
 
 AlgoliaSearch.prototype = {
     /*
@@ -596,7 +596,7 @@ AlgoliaSearch.prototype = {
       return (status === 200 || status === 201)
     },
     _haveFailed: function(status) {
-      return (status === 400 || status == 403 || status == 404)
+      return (parseInt(status / 100) === 4)
     },
     _parseJsonRequestByHost_do: function(callback, res) {
         var retry = !this._haveFailed(res.status);

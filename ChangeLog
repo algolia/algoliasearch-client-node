@@ -1,5 +1,9 @@
 CHANGELOG
 
+2015-02-06 1.7.4
+
+   * Introduce new http errors
+
 2015-02-06 1.7.3
 
    * Add the httpCode on error
