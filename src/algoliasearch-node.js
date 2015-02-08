@@ -120,9 +120,9 @@ AlgoliaSearch.prototype = {
         }
         if (_.isBoolean(type)) {
             if (type === true) {
-                type = "error"
+                type = 'error';
             } else {
-                type = "all"
+                type = 'all';
             }
         }
         this._request('GET', '/1/logs?offset=' + offset + '&length=' + length + '&type=' + type, null, callback);
@@ -135,10 +135,10 @@ AlgoliaSearch.prototype = {
         for (var i = 0; i < queries.length; ++i) {
             var indexName = queries[i][indexNameKey];
             delete (queries[i][indexNameKey]);
-            query = ""
+            query = '';
             for (var key in queries[i]) {
-                if (query != "") {
-                    query += "&";
+                if (query !== '') {
+                    query += '&';
                 }
                 if (key != null && queries[i].hasOwnProperty(key)) {
                     query += key + '=' + encodeURIComponent(Object.prototype.toString.call(queries[i][key]) === '[object Array]' ? JSON.stringify(queries[i][key]) : queries[i][key]);
@@ -371,7 +371,7 @@ AlgoliaSearch.prototype = {
             }
             tagFilters = strTags.join(',');
         }
-        return crypto.createHmac("sha256", privateApiKey).update(tagFilters + (userToken || '')).digest('hex');
+        return crypto.createHmac('sha256', privateApiKey).update(tagFilters + (userToken || '')).digest('hex');
     },
     /*
      * Index class constructor.
@@ -404,7 +404,7 @@ AlgoliaSearch.prototype = {
         this.forwardLimitAPIKey = null;
     },
 
-    /* 
+    /*
      * Specify the securedAPIKey to use with associated information
      */
     useSecuredAPIKey: function(securedAPIKey, securityTags, userToken) {
@@ -415,7 +415,7 @@ AlgoliaSearch.prototype = {
 
     /*
      * If a secured API was used, disable it
-     */    
+     */
     disableSecuredAPIKey : function() {
         this.securedAPIKey = null;
         this.SecurityTags = null;
@@ -424,7 +424,7 @@ AlgoliaSearch.prototype = {
 
    /**
      * Add an extra field to the HTTP request
-     * 
+     *
      * @param key the header field name
      * @param value the header field value
      */
@@ -434,12 +434,12 @@ AlgoliaSearch.prototype = {
 
     /**
       * Set the read timeout
-      * 
+      *
       * @param value timeout in millisecond
       */
     setTimeout: function(value) {
       if (typeof Parse !== 'undefined') {
-        console.log("The timeout is ignored with Parse");
+        console.log('The timeout is ignored with Parse');
       }
       this.timeout = value;
     },
@@ -524,12 +524,12 @@ AlgoliaSearch.prototype = {
             headers['X-Algolia-API-Key'] = this.securedAPIKey;
         }
         if (this.securityTags) {
-    	    headers['X-Algolia-TagFilters'] = this.securityTags;
+            headers['X-Algolia-TagFilters'] = this.securityTags;
         }
-	    if (this.userToken) {
+        if (this.userToken) {
             headers['X-Algolia-UserToken'] = this.userToken;
         }
-        return headers
+        return headers;
     },
     _basicHeaders: function() {
         return {
@@ -538,7 +538,7 @@ AlgoliaSearch.prototype = {
             'Connection':'keep-alive',
             'Content-Length': 0,
             'User-Agent': 'Algolia for node.js ' + AlgoliaSearch.version
-        }
+        };
     },
     _addBodyHeaders: function(headers, length) {
         return _.extend(headers, { 'Content-Type': 'application/json;charset=utf-8',
@@ -555,7 +555,7 @@ AlgoliaSearch.prototype = {
         var obj = this;
         var reqOpts = {
           method: opts.method,
-          url: "https://" + opts.hostname + opts.url,
+          url: 'https://' + opts.hostname + opts.url,
           headers: opts.headers,
           success: function(res) {
             obj._parseJsonRequestByHost_do(opts.callback, res);
@@ -567,10 +567,10 @@ AlgoliaSearch.prototype = {
 
         if (body != null) {
             var bodyUTF = body.toString('utf8');
-            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, bodyUTF.length)
-            reqOpts.body = bodyUTF
+            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, bodyUTF.length);
+            reqOpts.body = bodyUTF;
         }
-        delete reqOpts.headers["Content-Length"];
+        delete reqOpts.headers['Content-Length'];
         return reqOpts;
     },
     _computeRequestOptions: function(opts, body) {
@@ -588,7 +588,7 @@ AlgoliaSearch.prototype = {
             reqOpts.port = n[1];
         }
         if (body != null) {
-            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, new Buffer(body, 'utf8').length)
+            reqOpts.headers = this._addBodyHeaders(reqOpts.headers, new Buffer(body, 'utf8').length);
         }
         if (this.httpsAgent !== null) {
             reqOpts.agent = this.httpsAgent;
@@ -596,10 +596,10 @@ AlgoliaSearch.prototype = {
         return reqOpts;
     },
     _haveSucceeded: function(status) {
-      return (parseInt(status / 100) === 2)
+      return (parseInt(status / 100, 10) === 2);
     },
     _haveFailed: function(status) {
-      return (parseInt(status / 100) === 4)
+      return (parseInt(status / 100, 10) === 4);
     },
     _parseJsonRequestByHost_do: function(callback, res) {
         var retry = !this._haveFailed(res.status);
@@ -755,9 +755,9 @@ AlgoliaSearch.prototype.Index.prototype = {
         getObjects: function(objectIDs, callback) {
           requests = [];
           for (var i = 0; i < objectIDs.length; ++i) {
-              requests.push({ "indexName": this.indexName, "objectID": objectIDs[i]});
+              requests.push({ 'indexName': this.indexName, 'objectID': objectIDs[i]});
           }
-          this.as._request('POST', '/1/indexes/*/objects', { "requests": requests}, callback);
+          this.as._request('POST', '/1/indexes/*/objects', { 'requests': requests}, callback);
         },
         /*
          * Update partially an object (only update attributes passed in argument)
