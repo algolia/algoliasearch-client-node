@@ -988,6 +988,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             var indexObj = this;
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/task/' + taskID,
+                                   headers: this._computeHeaders(),
                                    callback: function(error, res, body) {
                 if (error) {
                     callback(true, body);
