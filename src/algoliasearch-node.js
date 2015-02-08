@@ -448,6 +448,7 @@ AlgoliaSearch.prototype = {
         this._jsonRequest({ method: method,
                             url: url,
                             body: body,
+                            headers: this._computeHeaders(),
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback)) {
                 callback(error, body);
@@ -458,6 +459,7 @@ AlgoliaSearch.prototype = {
         this._jsonRequest({ method: method,
                             url: url,
                             body: body,
+                            headers: this._computeHeaders(),
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback)) {
                if (!error && !_.isUndefined(ClassToDerive)) {
@@ -509,25 +511,25 @@ AlgoliaSearch.prototype = {
         };
         impl();
     },
-    _addHeadersRateLimit: function(opts) {
+    _addHeadersRateLimit: function(headers) {
         if (this.forwardAdminAPIKey) {
-            opts.headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
-            opts.headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
-            opts.headers['X-Forwarded-For'] = this.forwardEndUserIP;
+            headers['X-Algolia-API-Key'] = this.forwardAdminAPIKey;
+            headers['X-Forwarded-API-Key'] = this.forwardLimitAPIKey;
+            headers['X-Forwarded-For'] = this.forwardEndUserIP;
         }
-        return opts
+        return headers;
     },
-    _addHeadersSecuredAPIKey: function(opts) {
+    _addHeadersSecuredAPIKey: function(headers) {
         if (this.securedAPIKey) {
-            opts.headers['X-Algolia-API-Key'] = this.securedAPIKey;
+            headers['X-Algolia-API-Key'] = this.securedAPIKey;
         }
         if (this.securityTags) {
-    	    opts.headers['X-Algolia-TagFilters'] = this.securityTags;
+    	    headers['X-Algolia-TagFilters'] = this.securityTags;
         }
 	    if (this.userToken) {
-            opts.headers['X-Algolia-UserToken'] = this.userToken;
+            headers['X-Algolia-UserToken'] = this.userToken;
         }
-        return opts
+        return headers
     },
     _basicHeaders: function() {
         return {
@@ -540,15 +542,21 @@ AlgoliaSearch.prototype = {
     },
     _addBodyHeaders: function(headers, length) {
         return _.extend(headers, { 'Content-Type': 'application/json;charset=utf-8',
-                                                       'Content-Length': length });
+                                                   'Content-Length': length });
+    },
+    _computeHeaders: function() {
+        var headers = this.requestHeaders;
+        _.extend(headers, this._basicHeaders());
+        headers = this._addHeadersRateLimit(headers);
+        headers = this._addHeadersSecuredAPIKey(headers);
+        return headers;
     },
     _parseComputeRequestOptions: function(opts, body) {
         var obj = this;
-        _.extend(this.requestHeaders, this._basicHeaders());
         var reqOpts = {
           method: opts.method,
           url: "https://" + opts.hostname + opts.url,
-          headers: this.requestHeaders,
+          headers: opts.headers,
           success: function(res) {
             obj._parseJsonRequestByHost_do(opts.callback, res);
           },
@@ -556,8 +564,6 @@ AlgoliaSearch.prototype = {
             opts.callback(true, true, null, { 'message': res.text, httpCode: 0} );
           }
         };
-        reqOpts = this._addHeadersRateLimit(reqOpts);
-	reqOpts = this._addHeadersSecuredAPIKey(reqOpts);
 
         if (body != null) {
             var bodyUTF = body.toString('utf8');
@@ -568,16 +574,13 @@ AlgoliaSearch.prototype = {
         return reqOpts;
     },
     _computeRequestOptions: function(opts, body) {
-        _.extend(this.requestHeaders, this._basicHeaders());
         var reqOpts = {
           method: opts.method,
           hostname: opts.hostname,
           port: 443,
           path: opts.url,
-          headers: this.requestHeaders
+          headers: opts.headers
         };
-        reqOpts = this._addHeadersRateLimit(reqOpts);
-	reqOpts = this._addHeadersSecuredAPIKey(reqOpts);
 
         if (opts.hostname.indexOf(':') !== -1) {
             var n = opts.hostname.split(':');
@@ -593,7 +596,7 @@ AlgoliaSearch.prototype = {
         return reqOpts;
     },
     _haveSucceeded: function(status) {
-      return (status === 200 || status === 201)
+      return (parseInt(status / 100) === 2)
     },
     _haveFailed: function(status) {
       return (parseInt(status / 100) === 4)
