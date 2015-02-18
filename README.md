@@ -303,6 +303,15 @@ index.saveObject({'firstname': 'Jimmie',
                   'objectID': 'myID'});
 ```
 
+You have three ways to update an attribute of an object:
+
+ 1. Set the attribute value
+ 2. Add an element to an array
+ 3. Remove an element to an array
+ 4. Add an element to an array if it doesn't exist
+ 5. increment an attribute
+ 6. decrement an attribute
+
 Example to update only the city attribute of an existing object:
 
 ```javascript
@@ -371,6 +380,7 @@ You can use the following optional arguments:
  * **removeWordsIfNoResults**: This option to select a strategy to avoid having an empty result page. There is three different option:
   * **lastWords**: when a query does not return any result, the last word will be added as optional (the process is repeated with n-1 word, n-2 word, ... until there is results),
   * **firstWords**: when a query does not return any result, the first word will be added as optional (the process is repeated with second word, third word, ... until there is results),
+  * **allOptional**: When a query does not return any result, a second trial will be made with all words as optional (which is equivalent to transforming the AND operand between query terms in a OR operand) 
   * **none**: No specific processing is done when a query does not return any result (default behavior).
  * **minWordSizefor1Typo**: the minimum number of characters in a query word to accept one typo in this word.<br/>Defaults to 4.
  * **minWordSizefor2Typos**: the minimum number of characters in a query word to accept two typos in this word.<br/>Defaults to 8.
@@ -521,9 +531,6 @@ client.multipleQueries([{indexName: "categories", query: myQueryString, hitsPerP
 
 
 
-
-
-
 Get an object
 -------------
 
@@ -551,6 +558,10 @@ idx.getObjects(['myObj1', 'myObj2'], function(error, content) {
  // iterate over content
 });
 ```
+
+
+
+
 
 Delete an object
 -------------
