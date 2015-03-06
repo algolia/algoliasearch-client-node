@@ -657,6 +657,10 @@ AlgoliaSearch.prototype = {
         var req = https.request(reqOpts, function(res) {
             obj._jsonRequestByHost_do(opts.callback, res);
         });
+        if(req.setTimeout){
+            //Browserify does not implement this function
+            req.setTimeout(this.timeout);
+        }
         req.once('error', function(e) {
             opts.callback(true, true, null, { 'message': e, httpCode: 0} );
         });
