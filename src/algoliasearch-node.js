@@ -579,6 +579,9 @@ AlgoliaSearch.prototype = {
           port: 443,
           path: opts.url,
           headers: opts.headers,
+          // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+          // http://www.w3.org/TR/XMLHttpRequest/#the-withcredentials-attribute
+          // Set by Browserify to true, if undefined
           withCredentials: false
         };
 
