@@ -1,5 +1,9 @@
 CHANGELOG
 
+2015-03-06 1.7.6
+
+   * Fix : client can be used with Browserify (node polyfill for the browser)
+
 2015-02-08 1.7.5
 
    * Fixed an issue with processing of request headers. 
