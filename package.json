@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "underscore": "1.4.4",
-    "agentkeepalive": "0.1.5",
-    "buffers": "0.1.1"
+    "agentkeepalive": "0.1.5"
   },
   "devDependencies": {
     "async": "*",
