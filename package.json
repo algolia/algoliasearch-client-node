@@ -5,7 +5,7 @@
   "author": "Julien Lemoine <julien.lemoine@algolia.com>",
   "private": false,
   "engines": [
-    "node >= 0.6.0"
+    "node >= 0.8.0"
   ],
   "licenses": [
     {
