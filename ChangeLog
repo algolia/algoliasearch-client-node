@@ -3,6 +3,9 @@ CHANGELOG
 2015-03-06 1.7.6
 
    * Fix : client can be used with Browserify (node polyfill for the browser)
+   * Clean-up : Remove unused dependency : Buffers
+   * Regression : Not compatible with nodejs prior to 0.8
+   * Test : Now tested on more platforms, Node stable, 0.10, 0.8 and IOjs stable
 
 2015-02-08 1.7.5
 
