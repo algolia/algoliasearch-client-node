@@ -45,7 +45,7 @@ describe('Algolia Security', function () {
                 content.should.have.property('keys').length(keys + 1);
                 client.deleteUserKey(key, function(error, content) {
                   error.should.eql(false);
-                  sleep.sleep(5); // no task ID here
+                  sleep.sleep(10); // no task ID here
                   client.listUserKeys(function(error, content) {
                     error.should.have.eql(false);
                     content.should.have.property('keys').length(keys);

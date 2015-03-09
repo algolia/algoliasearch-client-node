@@ -24,7 +24,6 @@ var _ = require('underscore');
 var crypto = require('crypto');
 if (typeof Parse === 'undefined') {
   var https = require('https');
-  var Buffers = require('buffers');
 }
 
 /**
@@ -64,7 +63,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
 /**
  * Version
  */
-AlgoliaSearch.version = '1.7.5';
+AlgoliaSearch.version = '1.7.6';
 
 AlgoliaSearch.prototype = {
     /*
@@ -579,7 +578,11 @@ AlgoliaSearch.prototype = {
           hostname: opts.hostname,
           port: 443,
           path: opts.url,
-          headers: opts.headers
+          headers: opts.headers,
+          // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+          // http://www.w3.org/TR/XMLHttpRequest/#the-withcredentials-attribute
+          // Set by Browserify to true, if undefined
+          withCredentials: false
         };
 
         if (opts.hostname.indexOf(':') !== -1) {
@@ -617,14 +620,14 @@ AlgoliaSearch.prototype = {
     _jsonRequestByHost_do: function(callback, res) {
         var retry = !this._haveFailed(res.statusCode);
         var success = this._haveSucceeded(res.statusCode);
-        var chunks = new Buffers();
+        var chunks = [];
 
         res.on('data', function(chunk) {
-            chunks.push(chunk);
+            chunks.push(new Buffer(chunk));
         });
 
         res.once('end', function() {
-            var body = chunks.toString('utf8');
+            var body = Buffer.concat(chunks).toString('utf8');
 
             if (res && res.headers['content-type'] && res.headers['content-type'].toLowerCase().indexOf('application/json') >= 0) {
                 try {
@@ -657,7 +660,10 @@ AlgoliaSearch.prototype = {
         var req = https.request(reqOpts, function(res) {
             obj._jsonRequestByHost_do(opts.callback, res);
         });
-        req.setTimeout(this.timeout);
+        if(req.setTimeout){
+            //Browserify does not implement this function
+            req.setTimeout(this.timeout);
+        }
         req.once('error', function(e) {
             opts.callback(true, true, null, { 'message': e, httpCode: 0} );
         });
