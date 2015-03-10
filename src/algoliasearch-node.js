@@ -63,7 +63,7 @@ var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
 /**
  * Version
  */
-AlgoliaSearch.version = '1.7.6';
+AlgoliaSearch.version = '1.7.7';
 
 AlgoliaSearch.prototype = {
     /*
@@ -497,7 +497,10 @@ AlgoliaSearch.prototype = {
                 if (retry && error && (idx + 1) < self.hosts.length) {
                     impl(idx + 1);
                 } else {
-                    body.httpCode = res.statusCode;
+                    // request "error" event case
+                    if (res && res.statusCode) {
+                        body.httpCode = res.statusCode;
+                    }
                     callback(error, res, body);
                 }
             };
