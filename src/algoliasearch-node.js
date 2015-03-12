@@ -1271,12 +1271,13 @@ AlgoliaSearch.prototype.Index.prototype = {
                     indexName: this.indexName,
                     query: query,
                     page: 0,
-                    hitsPerPage: 1,
+                    hitsPerPage: 0,
                     attributesToRetrieve: [],
                     attributesToHighlight: [],
                     attributesToSnippet: [],
                     facets: disjunctiveFacets[di],
-                    facetFilters: filtersD
+                    facetFilters: filtersD,
+                    analytics: false
                 }));
             }
 
