@@ -18,8 +18,9 @@
     "url": "https://github.com/algolia/algoliasearch-client-node"
   },
   "dependencies": {
-    "underscore": "1.4.4",
-    "agentkeepalive": "0.1.5"
+    "agentkeepalive": "0.1.5",
+    "extend": "2.0.0",
+    "underscore": "1.4.4"
   },
   "devDependencies": {
     "async": "*",

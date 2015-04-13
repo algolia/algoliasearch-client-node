@@ -25,6 +25,7 @@ var crypto = require('crypto');
 if (typeof Parse === 'undefined') {
   var https = require('https');
 }
+var extend = require('extend');
 
 /**
  * Algolia Search library initialization
@@ -36,25 +37,28 @@ if (typeof Parse === 'undefined') {
 var AlgoliaSearch = function(applicationID, apiKey, httpsAgent, hostsArray) {
     this.applicationID = applicationID;
     this.apiKey = apiKey;
-    this.hosts = [];
     this.timeout = 30000;
     this.requestHeaders = {};
+    this.hosts = {};
+
+    var defaultHosts = [
+        applicationID + '-1.algolianet.com',
+        applicationID + '-2.algolianet.com',
+        applicationID + '-3.algolianet.com'
+    ];
+
     if (_.isUndefined(hostsArray)) {
-        hostsArray = [applicationID + '-1.algolia.net',
-                      applicationID + '-2.algolia.net',
-                      applicationID + '-3.algolia.net'];
+        this.hosts.read = [
+            applicationID + '-dsn.algolia.net'
+        ].concat(defaultHosts);
+    } else {
+        this.hosts.read = extend([], hostsArray);
     }
 
-    // Add hosts in random order
-    for (var i = 0; i < hostsArray.length; ++i) {
-        if (Math.random() > 0.5) {
-            this.hosts.reverse();
-        }
-        this.hosts.push(hostsArray[i]);
-    }
-    if (Math.random() > 0.5) {
-        this.hosts.reverse();
-    }
+    this.hosts.write = [
+        applicationID + '.algolia.net'
+    ].concat(defaultHosts);
+
     this.httpsAgent = _.isUndefined(httpsAgent) ? null : httpsAgent;
     this.disableRateLimitForward();
     this.disableSecuredAPIKey();
@@ -75,7 +79,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer that contains the task ID
      */
     deleteIndex: function(indexName, callback) {
-        this._request('DELETE', '/1/indexes/' + encodeURIComponent(indexName), null, callback);
+        this._request('DELETE', '/1/indexes/' + encodeURIComponent(indexName), null, 'write', callback);
     },
     /**
      * Move an existing index.
@@ -86,7 +90,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with index list or error description if error is true.
      */
     moveIndex: function(srcIndexName, dstIndexName, callback) {
-        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'move', destination: dstIndexName}, callback);
+        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'move', destination: dstIndexName}, 'write', callback);
     },
     /**
      * Copy an existing index.
@@ -97,7 +101,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with index list or error description if error is true.
      */
     copyIndex: function(srcIndexName, dstIndexName, callback) {
-        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'copy', destination: dstIndexName}, callback);
+        this._request('POST', '/1/indexes/' + encodeURIComponent(srcIndexName) + '/operation', {operation: 'copy', destination: dstIndexName}, 'write', callback);
     },
     /**
      * Return last log entries.
@@ -124,7 +128,7 @@ AlgoliaSearch.prototype = {
                 type = 'all';
             }
         }
-        this._request('GET', '/1/logs?offset=' + offset + '&length=' + length + '&type=' + type, null, callback);
+        this._request('GET', '/1/logs?offset=' + offset + '&length=' + length + '&type=' + type, null, 'read', callback);
     },
     /*
      * This method allows to query multiple indexes with one API call
@@ -147,7 +151,7 @@ AlgoliaSearch.prototype = {
                             params: query };
             body.requests.push(request);
         }
-        this._request('POST', '/1/indexes/*/queries', body, callback);
+        this._request('POST', '/1/indexes/*/queries', body, 'read', callback);
     },
     /*
      * List all existing indexes
@@ -157,7 +161,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with index list or error description if error is true.
      */
     listIndexes: function(callback) {
-        this._request('GET', '/1/indexes/', null, callback);
+        this._request('GET', '/1/indexes/', null, 'read', callback);
     },
     /*
      * Get the index object initialized
@@ -176,7 +180,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with user keys list or error description if error is true.
      */
     listUserKeys: function(callback) {
-        this._request('GET', '/1/keys', null, callback);
+        this._request('GET', '/1/keys', null, 'read', callback);
     },
     /*
      * Get ACL of a user key
@@ -186,7 +190,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with user keys list or error description if error is true.
      */
     getUserKeyACL: function(key, callback) {
-        this._request('GET', '/1/keys/' + key, null, callback);
+        this._request('GET', '/1/keys/' + key, null, 'read', callback);
     },
     /*
      * Delete an existing user key
@@ -196,7 +200,7 @@ AlgoliaSearch.prototype = {
      *  content: the server answer with user keys list or error description if error is true.
      */
     deleteUserKey: function(key, callback) {
-        this._request('DELETE', '/1/keys/' + key, null, callback);
+        this._request('DELETE', '/1/keys/' + key, null, 'write', callback);
     },
     /*
      * Add a user key
@@ -216,7 +220,7 @@ AlgoliaSearch.prototype = {
     addUserKey: function(acls, callback) {
         var aclsObject = {};
         aclsObject.acl = acls;
-        this._request('POST', '/1/keys', aclsObject, callback);
+        this._request('POST', '/1/keys', aclsObject, 'write', callback);
     },
     /*
      * Add a user key
@@ -242,7 +246,7 @@ AlgoliaSearch.prototype = {
         aclsObject.validity = validity;
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
-        this._request('POST', '/1/keys', aclsObjects, callback);
+        this._request('POST', '/1/keys', aclsObjects, 'write', callback);
     },
     /*
      * Add a user key
@@ -270,7 +274,7 @@ AlgoliaSearch.prototype = {
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
         aclsObject.indexes = indexes;
-        this._request('POST', '/1/keys', aclsObjects, callback);
+        this._request('POST', '/1/keys', aclsObjects, 'write', callback);
     },
     /*
      * Update a user key
@@ -290,7 +294,7 @@ AlgoliaSearch.prototype = {
     updateUserKey: function(key, acls, callback) {
         var aclsObject = {};
         aclsObject.acl = acls;
-        this._request('PUT', '/1/keys/' + key, aclsObject, callback);
+        this._request('PUT', '/1/keys/' + key, aclsObject, 'write', callback);
     },
     /*
      * Update a user key
@@ -316,7 +320,7 @@ AlgoliaSearch.prototype = {
         aclsObject.validity = validity;
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
-        this._request('PUT', '/1/keys/' + key, aclsObjects, callback);
+        this._request('PUT', '/1/keys/' + key, aclsObjects, 'write', callback);
     },
     /*
      * Update a user key
@@ -344,7 +348,7 @@ AlgoliaSearch.prototype = {
         aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
         aclsObject.maxHitsPerQuery = maxHitsPerQuery;
         aclsObject.indexes = indexes;
-        this._request('PUT', '/1/keys/' + key, aclsObjects, callback);
+        this._request('PUT', '/1/keys/' + key, aclsObjects, 'write', callback);
     },
     /*
      * Generate a secured and public API Key from a list of tagFilters and an
@@ -443,22 +447,24 @@ AlgoliaSearch.prototype = {
       this.timeout = value;
     },
 
-    _request: function(method, url, body, callback) {
+    _request: function(method, url, body, hostType, callback) {
         this._jsonRequest({ method: method,
                             url: url,
                             body: body,
                             headers: this._computeHeaders(),
+                            hostType: hostType,
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback)) {
                 callback(error, body);
             }
         }});
     },
-    _requestDerive: function(method, url, body, callback, ClassToDerive) {
+    _requestDerive: function(method, url, body, callback, hostType, ClassToDerive) {
         this._jsonRequest({ method: method,
                             url: url,
                             body: body,
                             headers: this._computeHeaders(),
+                            hostType: hostType,
                             callback: function(error, res, body) {
             if (!_.isUndefined(callback)) {
                if (!error && !_.isUndefined(ClassToDerive)) {
@@ -481,6 +487,10 @@ AlgoliaSearch.prototype = {
      * Wrapper that try all hosts to maximize the quality of service
      */
     _jsonRequest: function(opts) {
+        if (!opts.hostType) {
+            opts.hostType = 'write';
+        }
+
         var self = this;
         var callback = opts.callback;
 
@@ -489,12 +499,12 @@ AlgoliaSearch.prototype = {
             if (!_.isUndefined(position)) {
                 idx = position;
             }
-            if (!Array.isArray(self.hosts) || self.hosts.length <= idx) {
+            if (!Array.isArray(self.hosts[opts.hostType]) || self.hosts[opts.hostType].length <= idx) {
                 callback(true, null, { message: 'Cannot contact server', httpCode: 0});
                 return;
             }
             opts.callback = function(retry, error, res, body) {
-                if (retry && error && (idx + 1) < self.hosts.length) {
+                if (retry && error && (idx + 1) < self.hosts[opts.hostType].length) {
                     impl(idx + 1);
                 } else {
                     // request "error" event case
@@ -504,7 +514,7 @@ AlgoliaSearch.prototype = {
                     callback(error, res, body);
                 }
             };
-            opts.hostname = self.hosts[idx];
+            opts.hostname = self.hosts[opts.hostType][idx];
             if (typeof Parse !== 'undefined') {
                 self._parseJsonRequestByHost(opts);
             } else {
@@ -715,9 +725,9 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }
             }
             if (_.isUndefined(objectID)) {
-                this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName), content, callback);
+                this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName), content, 'write', callback);
             } else {
-                this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), content, callback);
+                this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), content, 'write', callback);
             }
 
         },
@@ -730,7 +740,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         addObjects: function(objects, callback) {
-            this._batch(objects, 'addObject', callback);
+            this._batch(objects, 'addObject', 'write', callback);
         },
         /*
          * Get an object from this index
@@ -753,7 +763,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                     params += attributes[i];
                 }
             }
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, objectID, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID) + params, objectID, 'read', callback);
         },
 
         /*
@@ -766,7 +776,7 @@ AlgoliaSearch.prototype.Index.prototype = {
           for (var i = 0; i < objectIDs.length; ++i) {
               requests.push({ 'indexName': this.indexName, 'objectID': objectIDs[i]});
           }
-          this.as._request('POST', '/1/indexes/*/objects', { 'requests': requests}, callback);
+          this.as._request('POST', '/1/indexes/*/objects', { 'requests': requests}, 'read', callback);
         },
         /*
          * Update partially an object (only update attributes passed in argument)
@@ -778,7 +788,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that contains 3 elements: createAt, taskId and objectID
          */
         partialUpdateObject: function(partialObject, callback) {
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(partialObject.objectID) + '/partial', partialObject, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(partialObject.objectID) + '/partial', partialObject, 'write', callback);
         },
 
         /*
@@ -802,7 +812,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObject: function(object, callback) {
-            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(object.objectID), object, callback);
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(object.objectID), object, 'write', callback);
         },
         /*
          * Override the content of several objects
@@ -813,12 +823,12 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
-            this._batch(objects, 'updateObject', callback);
+            this._batch(objects, 'updateObject', 'write', callback);
         },
 
 
         batch: function(request, callback) {
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', request, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', request, 'write', callback);
         },
 
         /*
@@ -834,7 +844,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 callback(true, { message: 'empty objectID', httpCode: 0});
                 return;
             }
-            this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), null, callback);
+            this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/' + encodeURIComponent(objectID), null, 'write', callback);
         },
         /*
          * Delete several objects
@@ -966,7 +976,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             if (!_.isUndefined(args)) {
                 params = this._getSearchParams(args, params);
             }
-            this.as._requestDerive('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/query', {params: params}, callback, ClassToDerive);
+            this.as._requestDerive('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/query', {params: params}, 'read', callback, ClassToDerive);
         },
 
         /*
@@ -981,7 +991,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             if (!_.isUndefined(hitsPerPage)) {
                 params += '&hitsPerPage=' + hitsPerPage;
             }
-            this.as._requestDerive('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/browse' + params, null, callback, ClassToDerive);
+            this.as._requestDerive('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/browse' + params, null, 'read', callback, ClassToDerive);
         },
 
         /*
@@ -998,6 +1008,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             this.as._jsonRequest({ method: 'GET',
                                    url: '/1/indexes/' + encodeURIComponent(indexObj.indexName) + '/task/' + taskID,
                                    headers: this.as._computeHeaders(),
+                                   hostType: 'read',
                                    callback: function(error, res, body) {
                 if (error) {
                     callback(true, body);
@@ -1021,7 +1032,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the settings object or the error message if a failure occured
          */
         getSettings: function(callback) {
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/settings', null, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/settings', null, 'read', callback);
         },
 
         /*
@@ -1032,7 +1043,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the settings object or the error message if a failure occured
          */
         clearIndex: function(callback) {
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/clear', null, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/clear', null, 'write', callback);
         },
 
         /*
@@ -1090,7 +1101,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer or the error message if a failure occured
          */
         setSettings: function(settings, callback) {
-            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/settings', settings, callback);
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/settings', settings, 'write', callback);
         },
         /*
          * List all existing user keys associated to this index
@@ -1100,7 +1111,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer with user keys list or error description if error is true.
          */
         listUserKeys: function(callback) {
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', null, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', null, 'read', callback);
         },
         /*
          * Get ACL of a user key associated to this index
@@ -1110,7 +1121,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer with user keys list or error description if error is true.
          */
         getUserKeyACL: function(key, callback) {
-            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, null, callback);
+            this.as._request('GET', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, null, 'read', callback);
         },
         /*
          * Delete an existing user key associated to this index
@@ -1120,7 +1131,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer with user keys list or error description if error is true.
          */
         deleteUserKey: function(key, callback) {
-            this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, null, callback);
+            this.as._request('DELETE', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, null, 'write', callback);
         },
         /*
          * Add an existing user key associated to this index
@@ -1140,7 +1151,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         addUserKey: function(acls, callback) {
             var aclsObject = {};
             aclsObject.acl = acls;
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, 'write', callback);
         },
         /*
          * Add an existing user key associated to this index
@@ -1166,7 +1177,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             aclsObject.validity = validity;
             aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
             aclsObject.maxHitsPerQuery = maxHitsPerQuery;
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys', aclsObject, 'write', callback);
         },
         /*
          * Update an existing user key associated to this index
@@ -1186,7 +1197,7 @@ AlgoliaSearch.prototype.Index.prototype = {
         updateUserKey: function(key, acls, callback) {
             var aclsObject = {};
             aclsObject.acl = acls;
-            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, callback);
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, 'write', callback);
         },
         /*
          * Update an existing user key associated to this index
@@ -1212,7 +1223,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             aclsObject.validity = validity;
             aclsObject.maxQueriesPerIPPerHour = maxQueriesPerIPPerHour;
             aclsObject.maxHitsPerQuery = maxHitsPerQuery;
-            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, callback);
+            this.as._request('PUT', '/1/indexes/' + encodeURIComponent(this.indexName) + '/keys/' + key, aclsObject, 'write', callback);
         },
 
         /*
@@ -1346,7 +1357,7 @@ AlgoliaSearch.prototype.Index.prototype = {
                 }
                 postObj.requests.push(request);
             }
-            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, callback);
+            this.as._request('POST', '/1/indexes/' + encodeURIComponent(this.indexName) + '/batch', postObj, 'write', callback);
         },
         // internal attributes
         as: null,

@@ -1,5 +1,12 @@
 CHANGELOG
 
+UNRELEASED
+
+  * new AlgoliaSearch HA implementation
+    - write and read hosts differenciation
+    - read hosts have dsn per default
+    - both read and write hosts are using two different DNS providers
+
 2015-03-10 1.7.7
 
   * Fix JS exception when we receive a request error event
@@ -13,7 +20,7 @@ CHANGELOG
 
 2015-02-08 1.7.5
 
-   * Fixed an issue with processing of request headers. 
+   * Fixed an issue with processing of request headers.
      They were computed at query execution and not at the moment where query was initiated.
      This could cause issues when having a change on headers just after a query or processing of several queries in parallel.
 
