@@ -1,11 +1,10 @@
 CHANGELOG
 
-UNRELEASED
+2015-04-14 1.8.0
 
-  * new AlgoliaSearch HA implementation
-    - write and read hosts differenciation
-    - read hosts have dsn per default
-    - both read and write hosts are using two different DNS providers
+  * FEATURE: new AlgoliaSearch HA implementation
+    We implemented a new high availability algorithm in all our API clients.
+    It uses 2 different DNS providers for all requests as fallbacks.
 
 2015-03-10 1.7.7
 
