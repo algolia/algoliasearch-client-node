@@ -459,7 +459,7 @@ AlgoliaSearch.prototype = {
             }
         }});
     },
-    _requestDerive: function(method, url, body, callback, hostType, ClassToDerive) {
+    _requestDerive: function(method, url, body, hostType, callback, ClassToDerive) {
         this._jsonRequest({ method: method,
                             url: url,
                             body: body,

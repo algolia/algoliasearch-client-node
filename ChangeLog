@@ -1,5 +1,9 @@
 CHANGELOG
 
+UNRELEASED
+
+  * FIX: requestDerive was broken (arguments order)
+
 2015-04-14 1.8.0
 
   * FEATURE: new AlgoliaSearch HA implementation
