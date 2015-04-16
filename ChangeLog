@@ -1,6 +1,6 @@
 CHANGELOG
 
-1.8.1
+2015-04-16 1.8.1
 
   * FIX: requestDerive was broken (arguments order)
 
