@@ -1,5 +1,9 @@
 CHANGELOG
 
+UNRELEASED
+
+  * Another bad commit in _batch + HA
+
 2015-04-17 1.8.2
 
   * FIX: missing params in some batch functions

@@ -740,7 +740,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         addObjects: function(objects, callback) {
-            this._batch(objects, 'addObject', 'write', callback);
+            this._batch(objects, 'addObject', callback);
         },
         /*
          * Get an object from this index
@@ -800,7 +800,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         partialUpdateObjects: function(objects, callback) {
-            this._batch(objects, 'partialUpdateObject', 'write', callback);
+            this._batch(objects, 'partialUpdateObject', callback);
         },
 
         /*
@@ -823,7 +823,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         saveObjects: function(objects, callback) {
-            this._batch(objects, 'updateObject', 'write', callback);
+            this._batch(objects, 'updateObject', callback);
         },
 
 
@@ -859,7 +859,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             objects.forEach(function(value) {
                 objectIDs.push({ 'objectID' : value });
             });
-            this._batch(objectIDs, 'deleteObject', 'write', callback);
+            this._batch(objectIDs, 'deleteObject', callback);
         },
         /*
          * Delete all objects matching a query
