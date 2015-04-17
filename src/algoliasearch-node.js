@@ -800,7 +800,7 @@ AlgoliaSearch.prototype.Index.prototype = {
          *  content: the server answer that updateAt and taskID
          */
         partialUpdateObjects: function(objects, callback) {
-            this._batch(objects, 'partialUpdateObject', callback);
+            this._batch(objects, 'partialUpdateObject', 'write', callback);
         },
 
         /*
@@ -859,7 +859,7 @@ AlgoliaSearch.prototype.Index.prototype = {
             objects.forEach(function(value) {
                 objectIDs.push({ 'objectID' : value });
             });
-            this._batch(objectIDs, 'deleteObject', callback);
+            this._batch(objectIDs, 'deleteObject', 'write', callback);
         },
         /*
          * Delete all objects matching a query

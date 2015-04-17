@@ -1,5 +1,9 @@
 CHANGELOG
 
+UNRELEASED
+
+  * FIX: missing params in some batch functions
+
 2015-04-16 1.8.1
 
   * FIX: requestDerive was broken (arguments order)
