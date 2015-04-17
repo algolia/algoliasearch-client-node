@@ -1,6 +1,6 @@
 CHANGELOG
 
-UNRELEASED
+2015-04-17 1.8.2
 
   * FIX: missing params in some batch functions
 
