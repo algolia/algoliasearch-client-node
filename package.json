@@ -1,7 +1,7 @@
 {
   "name": "algolia-search",
   "description": "Deprecated, use `alogliasearch` isomorphic package, see the migration guide https://github.com/algolia/algoliasearch-client-js/wiki/Node.js-v1.x.x-migration-guide",
-  "version": "1.7.7",
+  "version": "2.0.0",
   "author": "Julien Lemoine <julien.lemoine@algolia.com>",
   "private": false,
   "engines": [
